@@ -5,47 +5,47 @@ import pytesseract as pt
 
 letterNumber = 0
 
-def count(threshCrop):
-    visited = np.zeros((threshCrop.shape[1], threshCrop.shape[0]))
-    for y in range(0, threshCrop.shape[0]):
-        for x in range(0, threshCrop.shape[1]):
-            if resized[y][x] == 0 and visited[x][y] != 1:
+def count(img):
+    visited = np.zeros((img.shape[0], img.shape[1]))
+    for y in range(0, img.shape[0]):
+        for x in range(0, img.shape[1]):
+            if img[y][x] == 0 and visited[y][x] != 1:
                 append = True
                 XYArray = []
                 queue = deque([])
                 #nummerpladeFrame[y, x] = (0, 255, 0)
-                grassFrie(y, x, XYArray, append, threshCrop, visited, queue)
+                grassFrie(y, x, XYArray, append, img, visited, queue)
             else:
-                visited[x][y] = 1
+                visited[y][x] = 1
 
 
 # GrassFire algorithmen til at finde sorte pixels,
 # som tilhøre en større gruppe af sorte pixels
-def grassFrie(y, x, XYArray, append, threshCrop, visited, queue):
+def grassFrie(y, x, XYArray, append, img, visited, queue):
 
     if append == True:
-        visited[x][y] = 1
+        visited[y][x] = 1
         XYArray.append([x, y])
         queue.append([x, y])
     append = True
 
-    if x < threshCrop.shape[1] and visited[x + 1][y] != 1 and threshCrop[y][x + 1] == 0:
-        grassFrie(y, x + 1, XYArray, append, threshCrop, visited, queue)
+    if x < img.shape[1] and img[y][x + 1] == 0 and visited[y][x + 1] != 1:
+        grassFrie(y, x + 1, XYArray, append, img, visited, queue)
 
-    elif y < threshCrop.shape[0] and visited[x][y + 1] != 1 and threshCrop[y - 1][x] == 0:
-        grassFrie(y + 1, x, XYArray, append, threshCrop, visited, queue)
+    elif y < img.shape[0] and img[y - 1][x] == 0 and visited[y + 1][x] != 1:
+        grassFrie(y + 1, x, XYArray, append, img, visited, queue)
 
-    elif x > 0 and visited[x - 1][y] != 1 and threshCrop[y][x - 1] == 0:
-        grassFrie(y, x - 1, XYArray, append, threshCrop, visited, queue)
+    elif x > 0 and img[y][x - 1] == 0 and visited[y][x - 1] != 1:
+        grassFrie(y, x - 1, XYArray, append, img, visited, queue)
 
-    elif y > 0 and visited[x][y - 1] != 1 and threshCrop[y - 1][x] == 0:
-        grassFrie(y - 1, x, XYArray, append, threshCrop, visited, queue)
+    elif y > 0 and img[y - 1][x] == 0 and visited[y - 1][x] != 1:
+        grassFrie(y - 1, x, XYArray, append, img, visited, queue)
 
 
     elif len(queue) != 0:
         append = False
         x, y = queue.pop()
-        grassFrie(y, x, XYArray, append, threshCrop, visited, queue)
+        grassFrie(y, x, XYArray, append, img, visited, queue)
 
     else:
         print('jeg er færdig nu')
@@ -57,8 +57,8 @@ def grassFrie(y, x, XYArray, append, threshCrop, visited, queue):
         minX = min(xArray)
         minY = min(yArray)
 
-        cv2.rectangle(nummerpladeFrame, (minX, minY), (maxX, maxY), (0, 255, 0), 2)
-        letter = threshCrop[minY:minX,  maxY:maxX]
+        cv2.rectangle(img, (minX, minY), (maxX, maxY), (0, 255, 0), 2)
+        letter = img[minY:maxY,  minX:maxX]
         cv2.imshow('letter', letter)
 
 
@@ -100,8 +100,8 @@ nummerpladeFrame = frame[y: y + h, x: x + w]
 
 threshCrop = np.zeros((nummerpladeFrame.shape[0], nummerpladeFrame.shape[1]), dtype=np.uint8)
 
-for x in range(nummerpladeFrame.shape[0]):
-    for y in range(nummerpladeFrame.shape[1]):
+for x in range(0, nummerpladeFrame.shape[0]):
+    for y in range(0, nummerpladeFrame.shape[1]):
         r, g, b = nummerpladeFrame[x, y]
         gray = (r / 3 + g / 3 + b / 3)
 
@@ -125,6 +125,7 @@ cv2.imshow('original', frame)
 cv2.imshow('canny', edged)
 cv2.imshow('nummplade frame', nummerpladeFrame)
 cv2.imshow('thresh nummerplade', threshCrop)
+cv2.imshow('resiezed', resized)
 cv2.waitKey(0)
 
 

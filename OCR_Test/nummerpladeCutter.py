@@ -3,7 +3,6 @@ import numpy as np
 from collections import deque
 import pytesseract as pt
 
-letterNumber = 0
 
 def count(img):
     visited = np.zeros((img.shape[0], img.shape[1]))
@@ -13,7 +12,6 @@ def count(img):
                 append = True
                 XYArray = []
                 queue = deque([])
-                #nummerpladeFrame[y, x] = (0, 255, 0)
                 grassFrie(y, x, XYArray, append, img, visited, queue)
             else:
                 visited[y][x] = 1
@@ -48,7 +46,6 @@ def grassFrie(y, x, XYArray, append, img, visited, queue):
         grassFrie(y, x, XYArray, append, img, visited, queue)
 
     else:
-        print('jeg er færdig nu')
         xArray, yArray = zip(*XYArray)
 
         maxX = max(xArray)
@@ -57,15 +54,11 @@ def grassFrie(y, x, XYArray, append, img, visited, queue):
         minX = min(xArray)
         minY = min(yArray)
 
-        print(minX)
-        print(maxX)
-        print(minY)
-        print(maxY)
 
-        if minY != maxY and minX != maxX:
-            cv2.rectangle(img, (minX, minY), (maxX, maxY), (0, 255, 0), 2)
+        if maxY - minY > 15 and maxX - minX > 10:
+            cv2.rectangle(img, (minX, minY), (maxX, maxY), (0, 255, 0), 1)
             letter = img[minY:maxY,  minX:maxX]
-            cv2.imshow('letter', letter)
+            letterArray.append(letter)
 
 
 
@@ -77,7 +70,7 @@ def grassFrie(y, x, XYArray, append, img, visited, queue):
     #ret, frame = cap.read()
 
 #indlæs billede
-frame = cv2.imread('testnummerplader.jpg')
+frame = cv2.imread('bilnummerplade7.jpg')
 
 #grayScaler billede
 grayImg = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
@@ -116,6 +109,7 @@ for x in range(0, nummerpladeFrame.shape[0]):
         else:
             threshCrop[x, y] = 0
 
+letterArray = []
 height = 50
 width = int(height * 4.75)
 dim = (width, height)
@@ -123,14 +117,16 @@ dim = (width, height)
 resized = cv2.resize(threshCrop, dim, interpolation = cv2.INTER_AREA)
 count(resized)
 
-# finder tegn og samler det i en string og printer
+letterNumber = 0
+for i in letterArray:
+    letterNumber += 1
+    cv2.imshow(str(letterNumber), i)
+
+#finder tegn og samler det i en string og printer
 out_below = pt.image_to_string(threshCrop)
 print(out_below)
 
 cv2.imshow('original', frame)
-cv2.imshow('canny', edged)
-cv2.imshow('nummplade frame', nummerpladeFrame)
-cv2.imshow('thresh nummerplade', threshCrop)
 cv2.imshow('resiezed', resized)
 cv2.waitKey(0)
 

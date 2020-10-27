@@ -29,16 +29,16 @@ def grassFrie(y, x, XYArray, append, img, visited, queue):
         queue.append([x, y])
     append = True
 
-    if x < img.shape[1] and img[y][x + 1] == 0 and visited[y][x + 1] != 1:
+    if x + 1 < img.shape[1] and img[y][x + 1] == 0 and visited[y][x + 1] != 1:
         grassFrie(y, x + 1, XYArray, append, img, visited, queue)
 
-    elif y < img.shape[0] and img[y - 1][x] == 0 and visited[y + 1][x] != 1:
+    elif y + 1 < img.shape[0] and img[y + 1][x] == 0 and visited[y + 1][x] != 1:
         grassFrie(y + 1, x, XYArray, append, img, visited, queue)
 
-    elif x > 0 and img[y][x - 1] == 0 and visited[y][x - 1] != 1:
+    elif x - 1 > 0 and img[y][x - 1] == 0 and visited[y][x - 1] != 1:
         grassFrie(y, x - 1, XYArray, append, img, visited, queue)
 
-    elif y > 0 and img[y - 1][x] == 0 and visited[y - 1][x] != 1:
+    elif y - 1 > 0 and img[y - 1][x] == 0 and visited[y - 1][x] != 1:
         grassFrie(y - 1, x, XYArray, append, img, visited, queue)
 
 
@@ -57,9 +57,15 @@ def grassFrie(y, x, XYArray, append, img, visited, queue):
         minX = min(xArray)
         minY = min(yArray)
 
-        cv2.rectangle(img, (minX, minY), (maxX, maxY), (0, 255, 0), 2)
-        letter = img[minY:maxY,  minX:maxX]
-        cv2.imshow('letter', letter)
+        print(minX)
+        print(maxX)
+        print(minY)
+        print(maxY)
+
+        if minY != maxY and minX != maxX:
+            cv2.rectangle(img, (minX, minY), (maxX, maxY), (0, 255, 0), 2)
+            letter = img[minY:maxY,  minX:maxX]
+            cv2.imshow('letter', letter)
 
 
 

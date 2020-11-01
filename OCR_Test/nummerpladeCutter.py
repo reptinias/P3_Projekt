@@ -6,20 +6,20 @@ import pytesseract as pt
 
 def count(img):
     visited = np.zeros((img.shape[0], img.shape[1]))
-    for y in range(0, img.shape[0]):
-        for x in range(0, img.shape[1]):
+    for x in range(0, img.shape[1]):
+        for y in range(0, img.shape[0]):
             if img[y][x] == 0 and visited[y][x] != 1:
                 append = True
                 XYArray = []
                 queue = deque([])
-                grassFrie(y, x, XYArray, append, img, visited, queue)
+                grassFire(y, x, XYArray, append, img, visited, queue)
             else:
                 visited[y][x] = 1
 
 
 # GrassFire algorithmen til at finde sorte pixels,
 # som tilhøre en større gruppe af sorte pixels
-def grassFrie(y, x, XYArray, append, img, visited, queue):
+def grassFire(y, x, XYArray, append, img, visited, queue):
 
     if append == True:
         visited[y][x] = 1
@@ -28,22 +28,21 @@ def grassFrie(y, x, XYArray, append, img, visited, queue):
     append = True
 
     if x + 1 < img.shape[1] and img[y][x + 1] == 0 and visited[y][x + 1] != 1:
-        grassFrie(y, x + 1, XYArray, append, img, visited, queue)
+        grassFire(y, x + 1, XYArray, append, img, visited, queue)
 
     elif y + 1 < img.shape[0] and img[y + 1][x] == 0 and visited[y + 1][x] != 1:
-        grassFrie(y + 1, x, XYArray, append, img, visited, queue)
+        grassFire(y + 1, x, XYArray, append, img, visited, queue)
 
-    elif x - 1 > 0 and img[y][x - 1] == 0 and visited[y][x - 1] != 1:
-        grassFrie(y, x - 1, XYArray, append, img, visited, queue)
+    elif x > 0 and img[y][x - 1] == 0 and visited[y][x - 1] != 1:
+        grassFire(y, x - 1, XYArray, append, img, visited, queue)
 
-    elif y - 1 > 0 and img[y - 1][x] == 0 and visited[y - 1][x] != 1:
-        grassFrie(y - 1, x, XYArray, append, img, visited, queue)
-
+    elif y > 0 and img[y - 1][x] == 0 and visited[y - 1][x] != 1:
+        grassFire(y - 1, x, XYArray, append, img, visited, queue)
 
     elif len(queue) != 0:
         append = False
         x, y = queue.pop()
-        grassFrie(y, x, XYArray, append, img, visited, queue)
+        grassFire(y, x, XYArray, append, img, visited, queue)
 
     else:
         xArray, yArray = zip(*XYArray)
@@ -56,7 +55,7 @@ def grassFrie(y, x, XYArray, append, img, visited, queue):
 
 
         if maxY - minY > 15 and maxX - minX > 10:
-            cv2.rectangle(img, (minX, minY), (maxX, maxY), (0, 255, 0), 1)
+            #cv2.rectangle(img, (minX, minY), (maxX, maxY), (0, 255, 0), 1)
             letter = img[minY:maxY,  minX:maxX]
             letterArray.append(letter)
 
@@ -70,7 +69,7 @@ def grassFrie(y, x, XYArray, append, img, visited, queue):
     #ret, frame = cap.read()
 
 #indlæs billede
-frame = cv2.imread('bilnummerplade7.jpg')
+frame = cv2.imread('bilnummerplade10.jpg')
 
 #grayScaler billede
 grayImg = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
@@ -110,11 +109,16 @@ for x in range(0, nummerpladeFrame.shape[0]):
             threshCrop[x, y] = 0
 
 letterArray = []
+
 height = 50
 width = int(height * 4.75)
 dim = (width, height)
 # resize image
 resized = cv2.resize(threshCrop, dim, interpolation = cv2.INTER_AREA)
+
+kernel = np.zeros((5, 5), np.uint8)
+closed = cv2.morphologyEx(resized, cv2.MORPH_CLOSE, kernel)
+
 count(resized)
 
 letterNumber = 0
@@ -123,13 +127,16 @@ for i in letterArray:
     cv2.imshow(str(letterNumber), i)
 
 #finder tegn og samler det i en string og printer
-out_below = pt.image_to_string(threshCrop)
+out_below = pt.image_to_string(nummerpladeFrame)
 print(out_below)
 
 cv2.imshow('original', frame)
+cv2.imshow('gray original', grayImg)
+cv2.imshow('canny', edged)
+cv2.imshow('nummerplade', nummerpladeFrame)
+cv2.imshow('thresh crop', threshCrop)
 cv2.imshow('resiezed', resized)
 cv2.waitKey(0)
-
 
 
 #if cv2.waitKey(1) & 0xFF == ord('q'):

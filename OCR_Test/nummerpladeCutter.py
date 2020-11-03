@@ -1,7 +1,7 @@
 import cv2
 import numpy as np
 from collections import deque
-import pytesseract as pt
+#import pytesseract as pt
 
 
 def count(img):
@@ -98,6 +98,7 @@ nummerpladeFrame = frame[y: y + h, x: x + w]
 
 threshCrop = np.zeros((nummerpladeFrame.shape[0], nummerpladeFrame.shape[1]), dtype=np.uint8)
 
+
 for x in range(0, nummerpladeFrame.shape[0]):
     for y in range(0, nummerpladeFrame.shape[1]):
         r, g, b = nummerpladeFrame[x, y]
@@ -127,8 +128,8 @@ for i in letterArray:
     cv2.imshow(str(letterNumber), i)
 
 #finder tegn og samler det i en string og printer
-out_below = pt.image_to_string(nummerpladeFrame)
-print(out_below)
+#out_below = pt.image_to_string(nummerpladeFrame)
+#print(out_below)
 
 cv2.imshow('original', frame)
 cv2.imshow('gray original', grayImg)

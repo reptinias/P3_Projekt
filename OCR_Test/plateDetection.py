@@ -5,6 +5,24 @@ import matplotlib.pyplot as plt
 img = cv2.imread('bilnummerplade10.jpg')
 img2 = cv2.imread('bilnummerplade10.jpg',0)
 
+def convolute(img, filter):
+    imgRow, imgCol = img.shape
+    kernelRow, kernelCol = filter.shape
+    output = np.zeros(img.shape)
+
+    pad_height = kernelRow // 2
+    pad_width = kernelCol // 2
+    padded_image = np.zeros((imgRow + (2 * pad_height), imgCol + (2 * pad_width)))
+    padded_image[pad_height:padded_image.shape[0] - pad_height, pad_width:padded_image.shape[1] - pad_width] = img
+
+    for row in range(imgRow):
+        for col in range(imgCol):
+            output[row, col] = np.sum(filter * padded_image[row:row + kernelRow, col:col + kernelCol])
+            output[row, col] /= filter.shape[0] * filter.shape[1]
+
+    return output
+
+
 def grayScale(img):
     height, width, channel = img.shape
     grayImg = np.zeros((height,width))
@@ -27,57 +45,34 @@ def generate_gauss_kernel(size, img, sigma=1):
     blur(kernel, img)
 
 def blur(kernel,img):
-    imgRow, imgCol = img.shape
-    kernelRow, kernelCol = kernel.shape
-
-    output = np.zeros(img.shape)
-
-    pad_height = kernelRow // 2
-    pad_width = kernelCol // 2
-    padded_image = np.zeros((imgRow + (2 * pad_height), imgCol + (2 * pad_width)))
-
-    padded_image[pad_height:padded_image.shape[0] - pad_height, pad_width:padded_image.shape[1] - pad_width] = img
-
-    for row in range(imgRow):
-        for col in range(imgCol):
-            output[row, col] = np.sum(kernel * padded_image[row:row + kernelRow, col:col + kernelCol])
-            output[row, col] /= kernel.shape[0] * kernel.shape[1]
+    filteredImage = convolute(img, kernel)
 
     print('Blur applied')
-    plt.imshow(output, cmap='gray')
-    plt.title("Output Image using {}X{} Kernel".format(kernelRow, kernelCol))
+    plt.imshow(filteredImage, cmap='gray')
+    plt.title("Output Image using 5X5 Kernel")
     plt.show()
 
-    sobel(output)
+    sobel(filteredImage)
 
 def sobel(img):
     imgRow, imgCol = img.shape
-
-    GxOut = np.zeros(img.shape)
-    GyOut = np.zeros(img.shape)
     angle = np.zeros(img.shape)
 
-    Gx = [[-1,0,1],
+    Gx = np.array\
+        ([[-1,0,1],
           [-2,0,2],
-          [-1,0,1]]
+          [-1,0,1]])
 
-    Gy = [[1,2,1],
-          [0,0,0],
-          [-1,-2,-1]]
+    Gy = np.array\
+        ([[1, 2, 1],
+          [0, 0, 0],
+          [-1,-2,-1]])
 
-    pad_height = 3 // 2
-    pad_width = 3 // 2
-    padded_image = np.zeros((imgRow + (2 * pad_height), imgCol + (2 * pad_width)))
-    padded_image[pad_height:padded_image.shape[0] - pad_height, pad_width:padded_image.shape[1] - pad_width] = img
+    GxOut = convolute(img, Gx)
+    GyOut = convolute(img, Gy)
 
     for row in range(imgRow):
         for col in range(imgCol):
-            GxOut[row, col] = np.sum(Gx * padded_image[row:row + 3, col:col + 3])
-            GxOut[row, col] /= 9
-
-            GyOut[row, col] = np.sum(Gy * padded_image[row:row + 3, col:col + 3])
-            GyOut[row, col] /= 9
-
             angle[row, col] = np.arctan2(GyOut[row, col], GxOut[row, col])
 
     G = np.sqrt(GxOut**2 + GyOut**2)

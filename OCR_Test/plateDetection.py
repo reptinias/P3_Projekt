@@ -2,52 +2,129 @@ import cv2
 import numpy as np
 import matplotlib.pyplot as plt
 
+img = cv2.imread('bilnummerplade10.jpg')
 img2 = cv2.imread('bilnummerplade10.jpg',0)
-img1 = cv2.imread('imgT.jpg',0)
-grayimg = img1
 
+def grayScale(img):
+    height, width, channel = img.shape
+    grayImg = np.zeros((height,width))
 
-def grayScale(image):
-    height, width = img2.shape
     for i in range(height):
         for j in range(width):
-            r,g,b = image[i,j]
+            r,g,b = img[i,j]
             px = r*0.3 + 0.6*g + 0.1*b
-            grayimg[i,j] = px
+            grayImg[i,j] = px
+    print('Grey scaling completed')
+    generate_gauss_kernel(5, grayImg)
 
-def generate_gauss_kernel(size, sigma=1):
+def generate_gauss_kernel(size, img, sigma=1):
     kernel = np.zeros((size,size))
-
+    img = img
     for x in range(0,size):
         for y in range(0,size):
             kernel[x,y] = 1/(np.sqrt(2 * np.pi * sigma ** 2)) * np.e ** (-x**2 + y**2/2*sigma**2)
-    print(kernel)
-    blur(kernel, img2)
+    print('Gaussian kernel generated')
+    blur(kernel, img)
 
-def blur(kernel,image):
-    imgRow, imgCol = image.shape
+def blur(kernel,img):
+    imgRow, imgCol = img.shape
     kernelRow, kernelCol = kernel.shape
 
-    output = np.zeros(image.shape)
+    output = np.zeros(img.shape)
 
     pad_height = kernelRow // 2
     pad_width = kernelCol // 2
     padded_image = np.zeros((imgRow + (2 * pad_height), imgCol + (2 * pad_width)))
 
-    padded_image[pad_height:padded_image.shape[0] - pad_height, pad_width:padded_image.shape[1] - pad_width] = image
+    padded_image[pad_height:padded_image.shape[0] - pad_height, pad_width:padded_image.shape[1] - pad_width] = img
 
     for row in range(imgRow):
         for col in range(imgCol):
             output[row, col] = np.sum(kernel * padded_image[row:row + kernelRow, col:col + kernelCol])
             output[row, col] /= kernel.shape[0] * kernel.shape[1]
 
+    print('Blur applied')
     plt.imshow(output, cmap='gray')
     plt.title("Output Image using {}X{} Kernel".format(kernelRow, kernelCol))
     plt.show()
 
-#grayScale(img1)
-generate_gauss_kernel(5)
+    sobel(output)
 
+def sobel(img):
+    imgRow, imgCol = img.shape
+
+    GxOut = np.zeros(img.shape)
+    GyOut = np.zeros(img.shape)
+    angle = np.zeros(img.shape)
+
+    Gx = [[-1,0,1],
+          [-2,0,2],
+          [-1,0,1]]
+
+    Gy = [[1,2,1],
+          [0,0,0],
+          [-1,-2,-1]]
+
+    pad_height = 3 // 2
+    pad_width = 3 // 2
+    padded_image = np.zeros((imgRow + (2 * pad_height), imgCol + (2 * pad_width)))
+    padded_image[pad_height:padded_image.shape[0] - pad_height, pad_width:padded_image.shape[1] - pad_width] = img
+
+    for row in range(imgRow):
+        for col in range(imgCol):
+            GxOut[row, col] = np.sum(Gx * padded_image[row:row + 3, col:col + 3])
+            GxOut[row, col] /= 9
+
+            GyOut[row, col] = np.sum(Gy * padded_image[row:row + 3, col:col + 3])
+            GyOut[row, col] /= 9
+
+            angle[row, col] = np.arctan2(GyOut[row, col], GxOut[row, col])
+
+    G = np.sqrt(GxOut**2 + GyOut**2)
+
+    plt.imshow(G, cmap='gray')
+    plt.title("Sobel")
+    plt.show()
+
+    non_max(G,angle)
+
+def non_max(img, angle):
+    imgRow, imgCol = img.shape
+    output = np.zeros(img.shape)
+
+    angle = angle * 180. / np.pi
+    angle[angle < 0] += 180
+
+    for row in range(1,imgRow-1):
+        for col in range(1,imgCol-1):
+            q = 255
+            r = 255
+
+            if(0 <= angle[row,col] < 22.5) or (157.5 <= angle[row,col] <= 180):
+                q = img[row,col+1]
+                r = img[row,col-1]
+            elif (22.5 <= angle[row,col] < 67.5):
+                q = img[row+1,col-1]
+                r = img[row-1,col+1]
+            elif (67.5 <= angle[row,col] < 112.5):
+                q = img[row+1,col]
+                r = img[row-1,col]
+            elif (112.5 <= angle[row,col] < 157.5):
+                q = img[row-1,col-1]
+                r = img[row+1,col+1]
+
+            if(img[row,col] >= q) and (img[row,col] >= r):
+                output[row,col] = img[row,col]
+            else:
+                output[row, col] = 0
+
+    plt.imshow(output, cmap='gray')
+    plt.title("Non-maximum suppression")
+    plt.show()
+
+
+#grayScale(img)
+sobel(img2)
 
 #cv2.imshow('gray',grayimg)
-cv2.waitKey(0)
+#cv2.waitKey(0)

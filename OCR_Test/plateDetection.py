@@ -1,6 +1,6 @@
 import cv2
-import numpy as np
 import matplotlib.pyplot as plt
+import numpy as np
 
 img = cv2.imread('bilnummerplade10.jpg')
 img2 = cv2.imread('bilnummerplade10.jpg',0)
@@ -48,9 +48,9 @@ def blur(kernel,img):
     filteredImage = convolute(img, kernel)
 
     print('Blur applied')
-    plt.imshow(filteredImage, cmap='gray')
-    plt.title("Output Image using 5X5 Kernel")
-    plt.show()
+    #plt.imshow(filteredImage, cmap='gray')
+    #plt.title("Output Image using 5X5 Kernel")
+    #plt.show()
 
     sobel(filteredImage)
 
@@ -77,9 +77,10 @@ def sobel(img):
 
     G = np.sqrt(GxOut**2 + GyOut**2)
 
-    plt.imshow(G, cmap='gray')
-    plt.title("Sobel")
-    plt.show()
+    #plt.imshow(G, cmap='gray')
+    #plt.title("Sobel")
+    #plt.show()
+    print("Sobel kernel applied")
 
     non_max(G,angle)
 
@@ -92,34 +93,83 @@ def non_max(img, angle):
 
     for row in range(1,imgRow-1):
         for col in range(1,imgCol-1):
-            q = 255
-            r = 255
+                q = 255
+                r = 255
 
-            if(0 <= angle[row,col] < 22.5) or (157.5 <= angle[row,col] <= 180):
-                q = img[row,col+1]
-                r = img[row,col-1]
-            elif (22.5 <= angle[row,col] < 67.5):
-                q = img[row+1,col-1]
-                r = img[row-1,col+1]
-            elif (67.5 <= angle[row,col] < 112.5):
-                q = img[row+1,col]
-                r = img[row-1,col]
-            elif (112.5 <= angle[row,col] < 157.5):
-                q = img[row-1,col-1]
-                r = img[row+1,col+1]
+                if(0 <= angle[row,col] < 22.5) or (157.5 <= angle[row,col] <= 180):
+                    q = img[row,col+1]
+                    r = img[row,col-1]
+                elif (22.5 <= angle[row,col] < 67.5):
+                    q = img[row+1,col-1]
+                    r = img[row-1,col+1]
+                elif (67.5 <= angle[row,col] < 112.5):
+                    q = img[row+1,col]
+                    r = img[row-1,col]
+                elif (112.5 <= angle[row,col] < 157.5):
+                    q = img[row-1,col-1]
+                    r = img[row+1,col+1]
 
-            if(img[row,col] >= q) and (img[row,col] >= r):
-                output[row,col] = img[row,col]
-            else:
-                output[row, col] = 0
+                if(img[row,col] >= q) and (img[row,col] >= r):
+                    output[row,col] = img[row,col]
+                else:
+                    output[row, col] = 0
 
-    plt.imshow(output, cmap='gray')
-    plt.title("Non-maximum suppression")
+    doubleThreshold(output)
+
+    print("Non-maximum suppression")
+    #plt.imshow(output, cmap='gray')
+    #plt.title("Non-maximum suppression")
+    #plt.show()
+
+def doubleThreshold(img):
+    row, col = img.shape
+    weak = 25
+    strong = 255
+    output = np.zeros((row,col))
+
+    lowThresholdRatio = 0.05
+    highThresholdRatio = 0.09
+
+    highThresh = img.max() * highThresholdRatio
+    lowThresh = highThresh * lowThresholdRatio
+
+    #highThresh = 10
+    #lowThresh = 1
+
+    weakX, weakY = np.where((img <= highThresh) & (img >= lowThresh))
+    strongX, strongY = np.where(img >= highThresh)
+
+    output[strongX, strongY] = strong
+    output[weakX, weakY] = weak
+    #cv2.imwrite('non_max.jpg',output)
+    trackEdge(output)
+
+def trackEdge(img):
+    strong = 255
+    weak = 25
+
+    for row in range(1, img.shape[0]-1):
+        for col in range(1, img.shape[1]-1):
+            if (img[row,col] == weak):
+                try:
+                    if (img[row+1, col] == strong or img[row, col+1] == strong or img[row-1, col] == strong
+                            or img[row, col-1] == strong or img[row+1, col+1] == strong
+                            or img[row-1, col-1] == strong or img[row+1, col-1] == strong
+                            or img[row-1, col+1] == strong):
+                        img[row, col] = 255
+                    else:
+                        img[row, col] = 0
+                except IndexError as e:
+                    print("ERR")
+
+    plt.imshow(img, cmap='gray')
+    plt.title("Edge tracking")
     plt.show()
 
-
-#grayScale(img)
-sobel(img2)
+grayScale(img)
+#sobel(img2)
+#nMax = cv2.imread('non_max.jpg',0)
+#trackEdge(nMax)
 
 #cv2.imshow('gray',grayimg)
 #cv2.waitKey(0)

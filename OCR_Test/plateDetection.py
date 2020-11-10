@@ -2,8 +2,10 @@ import cv2
 import matplotlib.pyplot as plt
 import numpy as np
 
-img = cv2.imread('bilnummerplade10.jpg')
+imgOriginal = cv2.imread('bilnummerplade10.jpg')
 img2 = cv2.imread('bilnummerplade10.jpg',0)
+grayImg = np.zeros((imgOriginal.shape[0],imgOriginal.shape[1]))
+binaryImg = np.zeros((imgOriginal.shape[0],imgOriginal.shape[1]))
 
 def convolute(img, filter):
     imgRow, imgCol = img.shape
@@ -25,13 +27,21 @@ def convolute(img, filter):
 
 def grayScale(img):
     height, width, channel = img.shape
-    grayImg = np.zeros((height,width))
 
     for i in range(height):
         for j in range(width):
-            r,g,b = img[i,j]
+            r, g, b = img[i, j]
             px = r*0.3 + 0.6*g + 0.1*b
-            grayImg[i,j] = px
+            grayImg[i, j] = px
+
+            if px >= 70:
+                binaryImg[i, j] = 255
+            else:
+                binaryImg[i, j] = 0
+
+    cv2.imwrite('grayImg.jpg', grayImg)
+    cv2.imwrite('binaryImg.jpg',binaryImg)
+
     print('Grey scaling completed')
     generate_gauss_kernel(5, grayImg)
 
@@ -128,13 +138,10 @@ def doubleThreshold(img):
     output = np.zeros((row,col))
 
     lowThresholdRatio = 0.05
-    highThresholdRatio = 0.09
+    highThresholdRatio = 0.2
 
     highThresh = img.max() * highThresholdRatio
     lowThresh = highThresh * lowThresholdRatio
-
-    #highThresh = 10
-    #lowThresh = 1
 
     weakX, weakY = np.where((img <= highThresh) & (img >= lowThresh))
     strongX, strongY = np.where(img >= highThresh)
@@ -162,11 +169,34 @@ def trackEdge(img):
                 except IndexError as e:
                     print("ERR")
 
+    cv2.imwrite('edge.jpg',img)
     plt.imshow(img, cmap='gray')
     plt.title("Edge tracking")
     plt.show()
 
-grayScale(img)
+    detectPlate(img)
+
+def detectPlate(img):
+    img = img.astype(np.uint8)
+    _, contours, _ = cv2.findContours(img, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+
+    areas = [cv2.contourArea(c) for c in contours]
+    max_index = np.argmax(areas)
+    cnt = contours[max_index]
+
+    x, y, w, h = cv2.boundingRect(cnt)
+    cv2.rectangle(binaryImg, (x, y), (x + w, y + h), (0, 255, 0), 2)
+
+    nummerpladeFrame = binaryImg[y: y + h, x: x + w]
+
+    threshCrop = np.zeros((nummerpladeFrame.shape[0], nummerpladeFrame.shape[1]), dtype=np.uint8)
+    cv2.imwrite('plate.jpg', nummerpladeFrame)
+
+    plt.imshow(nummerpladeFrame, cmap='gray')
+    plt.title("Plate")
+    plt.show()
+
+grayScale(imgOriginal)
 #sobel(img2)
 #nMax = cv2.imread('non_max.jpg',0)
 #trackEdge(nMax)

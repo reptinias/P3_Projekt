@@ -1,3 +1,5 @@
+from collections import deque
+
 import cv2
 import matplotlib.pyplot as plt
 import numpy as np
@@ -24,7 +26,6 @@ def convolute(img, filter):
 
     return output
 
-
 def grayScale(img):
     height, width, channel = img.shape
 
@@ -42,7 +43,7 @@ def grayScale(img):
     cv2.imwrite('grayImg.jpg', grayImg)
     cv2.imwrite('binaryImg.jpg',binaryImg)
 
-    print('Grey scaling completed')
+    print('Gray scaling completed')
     generate_gauss_kernel(5, grayImg)
 
 def generate_gauss_kernel(size, img, sigma=1):
@@ -189,12 +190,80 @@ def detectPlate(img):
 
     nummerpladeFrame = binaryImg[y: y + h, x: x + w]
 
-    threshCrop = np.zeros((nummerpladeFrame.shape[0], nummerpladeFrame.shape[1]), dtype=np.uint8)
+    height = 50
+    width = int(height * 4.75)
+    dim = (width, height)
+    # resize image
+    resized = cv2.resize(nummerpladeFrame, dim, interpolation=cv2.INTER_AREA)
+
     cv2.imwrite('plate.jpg', nummerpladeFrame)
+
+    count(resized)
 
     plt.imshow(nummerpladeFrame, cmap='gray')
     plt.title("Plate")
     plt.show()
+
+def count(img):
+    visited = np.zeros((img.shape[0], img.shape[1]))
+    for x in range(0, img.shape[1]):
+        for y in range(0, img.shape[0]):
+            if img[y][x] == 0 and visited[y][x] != 1:
+                append = True
+                XYArray = []
+                queue = deque([])
+                grassFire(y, x, XYArray, append, img, visited, queue)
+            else:
+                visited[y][x] = 1
+
+# GrassFire algorithmen til at finde sorte pixels,
+# som tilhøre en større gruppe af sorte pixels
+letterArray = []
+
+def grassFire(y, x, XYArray, append, img, visited, queue):
+
+    if append == True:
+        visited[y][x] = 1
+        XYArray.append([x, y])
+        queue.append([x, y])
+    append = True
+
+    if x + 1 < img.shape[1] and img[y][x + 1] == 0 and visited[y][x + 1] != 1:
+        grassFire(y, x + 1, XYArray, append, img, visited, queue)
+
+    elif y + 1 < img.shape[0] and img[y + 1][x] == 0 and visited[y + 1][x] != 1:
+        grassFire(y + 1, x, XYArray, append, img, visited, queue)
+
+    elif x > 0 and img[y][x - 1] == 0 and visited[y][x - 1] != 1:
+        grassFire(y, x - 1, XYArray, append, img, visited, queue)
+
+    elif y > 0 and img[y - 1][x] == 0 and visited[y - 1][x] != 1:
+        grassFire(y - 1, x, XYArray, append, img, visited, queue)
+
+    elif len(queue) != 0:
+        append = False
+        x, y = queue.pop()
+        grassFire(y, x, XYArray, append, img, visited, queue)
+
+    else:
+        xArray, yArray = zip(*XYArray)
+
+        maxX = max(xArray)
+        maxY = max(yArray)
+
+        minX = min(xArray)
+        minY = min(yArray)
+
+
+        if maxY - minY > 15 and maxX - minX > 10:
+            cv2.rectangle(img, (minX, minY), (maxX, maxY), (0, 255, 0), 1)
+            letter = img[minY:maxY,  minX:maxX]
+            letterArray.append(letter)
+
+            plt.imshow(letter, cmap='gray')
+            plt.title("Letter")
+            plt.show()
+
 
 grayScale(imgOriginal)
 #sobel(img2)

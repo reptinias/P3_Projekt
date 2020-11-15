@@ -27,6 +27,7 @@ def convolute(img, filter):
     return output
 
 def grayScale(img):
+    print('Running gray scaling')
     height, width, channel = img.shape
 
     for i in range(height):
@@ -43,22 +44,24 @@ def grayScale(img):
     cv2.imwrite('grayImg.jpg', grayImg)
     cv2.imwrite('binaryImg.jpg',binaryImg)
 
-    print('Gray scaling completed')
+    print('Completed')
     generate_gauss_kernel(5, grayImg)
 
 def generate_gauss_kernel(size, img, sigma=1):
+    print('Generating gaussian kernel')
     kernel = np.zeros((size,size))
     img = img
     for x in range(0,size):
         for y in range(0,size):
             kernel[x,y] = 1/(np.sqrt(2 * np.pi * sigma ** 2)) * np.e ** (-x**2 + y**2/2*sigma**2)
-    print('Gaussian kernel generated')
+    print('Completed')
     blur(kernel, img)
 
 def blur(kernel,img):
+    print('Applying filter')
     filteredImage = convolute(img, kernel)
 
-    print('Blur applied')
+    print('Completed')
     #plt.imshow(filteredImage, cmap='gray')
     #plt.title("Output Image using 5X5 Kernel")
     #plt.show()
@@ -66,6 +69,7 @@ def blur(kernel,img):
     sobel(filteredImage)
 
 def sobel(img):
+    print('Applying sobel kernel')
     imgRow, imgCol = img.shape
     angle = np.zeros(img.shape)
 
@@ -91,11 +95,11 @@ def sobel(img):
     #plt.imshow(G, cmap='gray')
     #plt.title("Sobel")
     #plt.show()
-    print("Sobel kernel applied")
-
+    print('Completed')
     non_max(G,angle)
 
 def non_max(img, angle):
+    print('Applying non-maximum suppression')
     imgRow, imgCol = img.shape
     output = np.zeros(img.shape)
 
@@ -125,14 +129,15 @@ def non_max(img, angle):
                 else:
                     output[row, col] = 0
 
+    print('Completed')
     doubleThreshold(output)
 
-    print("Non-maximum suppression")
     #plt.imshow(output, cmap='gray')
     #plt.title("Non-maximum suppression")
     #plt.show()
 
 def doubleThreshold(img):
+    print('Applying double threshold')
     row, col = img.shape
     weak = 25
     strong = 255
@@ -150,9 +155,12 @@ def doubleThreshold(img):
     output[strongX, strongY] = strong
     output[weakX, weakY] = weak
     #cv2.imwrite('non_max.jpg',output)
+
+    print('Completed')
     trackEdge(output)
 
 def trackEdge(img):
+    print('Tracking edges')
     strong = 255
     weak = 25
 
@@ -170,6 +178,8 @@ def trackEdge(img):
                 except IndexError as e:
                     print("ERR")
 
+    print('Completed')
+
     cv2.imwrite('edge.jpg',img)
     plt.imshow(img, cmap='gray')
     plt.title("Edge tracking")
@@ -178,6 +188,7 @@ def trackEdge(img):
     detectPlate(img)
 
 def detectPlate(img):
+    print('Detecting license plate')
     img = img.astype(np.uint8)
     _, contours, _ = cv2.findContours(img, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
 
@@ -198,11 +209,15 @@ def detectPlate(img):
 
     cv2.imwrite('plate.jpg', nummerpladeFrame)
 
-    count(resized)
+    print('Completed')
 
     plt.imshow(nummerpladeFrame, cmap='gray')
     plt.title("Plate")
     plt.show()
+
+    print('Detecting characters')
+
+    count(resized)
 
 def count(img):
     visited = np.zeros((img.shape[0], img.shape[1]))
@@ -215,9 +230,8 @@ def count(img):
                 grassFire(y, x, XYArray, append, img, visited, queue)
             else:
                 visited[y][x] = 1
-
-# GrassFire algorithmen til at finde sorte pixels,
-# som tilhøre en større gruppe af sorte pixels
+                
+    print('Completed')
 letterArray = []
 
 def grassFire(y, x, XYArray, append, img, visited, queue):
@@ -256,7 +270,6 @@ def grassFire(y, x, XYArray, append, img, visited, queue):
 
 
         if maxY - minY > 15 and maxX - minX > 10:
-            cv2.rectangle(img, (minX, minY), (maxX, maxY), (0, 255, 0), 1)
             letter = img[minY:maxY,  minX:maxX]
             letterArray.append(letter)
 

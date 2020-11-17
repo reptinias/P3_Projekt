@@ -1,19 +1,38 @@
 from collections import deque
 
+TS = True
+
+if TS:
+    import pytesseract as pt
+
 import cv2
 import matplotlib.pyplot as plt
 import numpy as np
 
+#Load original image
 imgOriginal = cv2.imread('bilnummerplade10.jpg')
 img2 = cv2.imread('bilnummerplade10.jpg',0)
+
+class Tesseract:
+    def __init__(self, img):
+        self.img = img
+
+    def getText(self):
+        pt.pytesseract.tesseract_cmd = r'G:\Programs\Tesseract-OCR\tesseract.exe'
+        out_below = pt.image_to_string(self.img, config='-c tessedit_char_whitelist=0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ --psm 10')
+        print(out_below)
+
+#Empty arrays for the grayscale and binary version of the image
 grayImg = np.zeros((imgOriginal.shape[0],imgOriginal.shape[1]))
 binaryImg = np.zeros((imgOriginal.shape[0],imgOriginal.shape[1]))
 
+#Convolution function
 def convolute(img, filter):
     imgRow, imgCol = img.shape
     kernelRow, kernelCol = filter.shape
     output = np.zeros(img.shape)
 
+    #Add padding to the image
     pad_height = kernelRow // 2
     pad_width = kernelCol // 2
     padded_image = np.zeros((imgRow + (2 * pad_height), imgCol + (2 * pad_width)))
@@ -23,19 +42,21 @@ def convolute(img, filter):
         for col in range(imgCol):
             output[row, col] = np.sum(filter * padded_image[row:row + kernelRow, col:col + kernelCol])
             output[row, col] /= filter.shape[0] * filter.shape[1]
-
     return output
 
+#Gray scaling (Step 1)
 def grayScale(img):
     print('Running gray scaling')
     height, width, channel = img.shape
 
     for i in range(height):
         for j in range(width):
+            #Convert to grayscale
             r, g, b = img[i, j]
             px = r*0.3 + 0.6*g + 0.1*b
             grayImg[i, j] = px
 
+            #Convert to binary
             if px >= 70:
                 binaryImg[i, j] = 255
             else:
@@ -47,6 +68,7 @@ def grayScale(img):
     print('Completed')
     generate_gauss_kernel(5, grayImg)
 
+#Generate 5X5 gaussian kernel (Step 2, pt.1)
 def generate_gauss_kernel(size, img, sigma=1):
     print('Generating gaussian kernel')
     kernel = np.zeros((size,size))
@@ -57,6 +79,7 @@ def generate_gauss_kernel(size, img, sigma=1):
     print('Completed')
     blur(kernel, img)
 
+#Apply the gaussian filter to the image (Step 2, pt.2)
 def blur(kernel,img):
     print('Applying filter')
     filteredImage = convolute(img, kernel)
@@ -68,6 +91,7 @@ def blur(kernel,img):
 
     sobel(filteredImage)
 
+#Apply sobel kernels to the filtered image (Step 3)
 def sobel(img):
     print('Applying sobel kernel')
     imgRow, imgCol = img.shape
@@ -98,6 +122,7 @@ def sobel(img):
     print('Completed')
     non_max(G,angle)
 
+#Non-maximum suppression (Step 4)
 def non_max(img, angle):
     print('Applying non-maximum suppression')
     imgRow, imgCol = img.shape
@@ -136,6 +161,7 @@ def non_max(img, angle):
     #plt.title("Non-maximum suppression")
     #plt.show()
 
+#Double thresholding (Step 5)
 def doubleThreshold(img):
     print('Applying double threshold')
     row, col = img.shape
@@ -159,6 +185,7 @@ def doubleThreshold(img):
     print('Completed')
     trackEdge(output)
 
+#Edge tracking (Step 6)
 def trackEdge(img):
     print('Tracking edges')
     strong = 255
@@ -181,12 +208,13 @@ def trackEdge(img):
     print('Completed')
 
     cv2.imwrite('edge.jpg',img)
-    plt.imshow(img, cmap='gray')
-    plt.title("Edge tracking")
-    plt.show()
+    #plt.imshow(img, cmap='gray')
+    #plt.title("Edge tracking")
+    #plt.show()
 
     detectPlate(img)
 
+#License plate detection (Step 7)
 def detectPlate(img):
     print('Detecting license plate')
     img = img.astype(np.uint8)
@@ -204,21 +232,26 @@ def detectPlate(img):
     height = 50
     width = int(height * 4.75)
     dim = (width, height)
-    # resize image
+    #Resize image
     resized = cv2.resize(nummerpladeFrame, dim, interpolation=cv2.INTER_AREA)
 
     cv2.imwrite('plate.jpg', nummerpladeFrame)
-
+    pl = cv2.imread('plate.jpg')
     print('Completed')
+
+    if TS:
+        ts = Tesseract(pl)
+        ts.getText()
 
     plt.imshow(nummerpladeFrame, cmap='gray')
     plt.title("Plate")
     plt.show()
 
-    print('Detecting characters')
+    if not TS:
+        print('Detecting characters')
+        count(resized)
 
-    count(resized)
-
+#Character segmentation (Step 8)
 def count(img):
     visited = np.zeros((img.shape[0], img.shape[1]))
     for x in range(0, img.shape[1]):
@@ -272,7 +305,6 @@ def grassFire(y, x, XYArray, append, img, visited, queue):
         if maxY - minY > 15 and maxX - minX > 10:
             letter = img[minY:maxY,  minX:maxX]
             letterArray.append(letter)
-
             plt.imshow(letter, cmap='gray')
             plt.title("Letter")
             plt.show()

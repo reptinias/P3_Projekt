@@ -1,6 +1,6 @@
 from collections import deque
 
-TS = True
+TS = False
 
 if TS:
     import pytesseract as pt
@@ -9,7 +9,7 @@ import cv2
 import matplotlib.pyplot as plt
 import numpy as np
 
-#Load original image
+# Load original image
 imgOriginal = cv2.imread('bilnummerplade10.jpg')
 img2 = cv2.imread('bilnummerplade10.jpg',0)
 
@@ -18,9 +18,29 @@ class Tesseract:
         self.img = img
 
     def getText(self):
-        pt.pytesseract.tesseract_cmd = r'G:\Programs\Tesseract-OCR\tesseract.exe'
+        pt.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
         out_below = pt.image_to_string(self.img, config='-c tessedit_char_whitelist=0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ --psm 10')
         print(out_below)
+
+
+# Load the data and convert the letters to numbers
+data= np.loadtxt('letter-recognition.data', dtype= 'float32', delimiter = ',',
+                 converters= {0: lambda ch: ord(ch)-ord('A')})
+# Split the dataset in two, with 10000 samples each for training and test sets
+train, test = np.vsplit(data,2)
+# Split trainData and testData into features and responses
+responses, trainData = np.hsplit(train,[1])
+labels, testData = np.hsplit(test,[1])
+# Initiate the kNN, classify, measure accuracy
+knn = cv2.ml.KNearest_create()
+knn.train(trainData, cv2.ml.ROW_SAMPLE, responses)
+ret, result, neighbours, dist = knn.findNearest(testData, k=5)
+correct = np.count_nonzero(result == labels)
+accuracy = correct*100.0/10000
+print( accuracy )
+
+# save the kNN Model
+np.savez('knn_data.npz',train=train, train_labels=trainData)
 
 #Empty arrays for the grayscale and binary version of the image
 grayImg = np.zeros((imgOriginal.shape[0],imgOriginal.shape[1]))
@@ -97,12 +117,12 @@ def sobel(img):
     imgRow, imgCol = img.shape
     angle = np.zeros(img.shape)
 
-    Gx = np.array\
+    Gx = np.array \
         ([[-1,0,1],
           [-2,0,2],
           [-1,0,1]])
 
-    Gy = np.array\
+    Gy = np.array \
         ([[1, 2, 1],
           [0, 0, 0],
           [-1,-2,-1]])
@@ -133,26 +153,26 @@ def non_max(img, angle):
 
     for row in range(1,imgRow-1):
         for col in range(1,imgCol-1):
-                q = 255
-                r = 255
+            q = 255
+            r = 255
 
-                if(0 <= angle[row,col] < 22.5) or (157.5 <= angle[row,col] <= 180):
-                    q = img[row,col+1]
-                    r = img[row,col-1]
-                elif (22.5 <= angle[row,col] < 67.5):
-                    q = img[row+1,col-1]
-                    r = img[row-1,col+1]
-                elif (67.5 <= angle[row,col] < 112.5):
-                    q = img[row+1,col]
-                    r = img[row-1,col]
-                elif (112.5 <= angle[row,col] < 157.5):
-                    q = img[row-1,col-1]
-                    r = img[row+1,col+1]
+            if(0 <= angle[row,col] < 22.5) or (157.5 <= angle[row,col] <= 180):
+                q = img[row,col+1]
+                r = img[row,col-1]
+            elif (22.5 <= angle[row,col] < 67.5):
+                q = img[row+1,col-1]
+                r = img[row-1,col+1]
+            elif (67.5 <= angle[row,col] < 112.5):
+                q = img[row+1,col]
+                r = img[row-1,col]
+            elif (112.5 <= angle[row,col] < 157.5):
+                q = img[row-1,col-1]
+                r = img[row+1,col+1]
 
-                if(img[row,col] >= q) and (img[row,col] >= r):
-                    output[row,col] = img[row,col]
-                else:
-                    output[row, col] = 0
+            if(img[row,col] >= q) and (img[row,col] >= r):
+                output[row,col] = img[row,col]
+            else:
+                output[row, col] = 0
 
     print('Completed')
     doubleThreshold(output)
@@ -263,7 +283,7 @@ def count(img):
                 grassFire(y, x, XYArray, append, img, visited, queue)
             else:
                 visited[y][x] = 1
-                
+
     print('Completed')
 letterArray = []
 
@@ -308,9 +328,34 @@ def grassFire(y, x, XYArray, append, img, visited, queue):
             plt.imshow(letter, cmap='gray')
             plt.title("Letter")
             plt.show()
+            cv2.imwrite('letter.png',letter)
+            knnresult()
 
 
-grayScale(imgOriginal)
+def knnresult():
+    with np.load('knn_data.npz') as data:
+        print(data.files)
+        train = data['train']
+        trainData = data['train_labels']
+
+        knn = cv2.ml.KNearest_create()
+        knn.train(train, cv2.ml.ROW_SAMPLE, trainData)
+
+        test_img = cv2.imread('letter.png')
+        test_img = cv2.cvtColor(test_img, cv2.COLOR_BGR2GRAY)
+        test_img = cv2.resize(test_img, (20, 20))½
+        x = np.array(test_img)
+        test_img = x.reshape(-1, 400).astype(np.float32)
+        ret, result, neighbours, dist = knn.findNearest(test_img, k=5)
+        # Print the predicted number
+        print('int', result)
+
+
+
+
+
+knnresult()
+#½grayScale(imgOriginal)
 #sobel(img2)
 #nMax = cv2.imread('non_max.jpg',0)
 #trackEdge(nMax)

@@ -35,9 +35,12 @@ labels, testData = np.hsplit(test,[1])
 knn = cv2.ml.KNearest_create()
 knn.train(trainData, cv2.ml.ROW_SAMPLE, responses)
 ret, result, neighbours, dist = knn.findNearest(testData, k=5)
+print(testData)
+
 correct = np.count_nonzero(result == labels)
 accuracy = correct*100.0/10000
 print( accuracy )
+print(knn.findNearest)
 
 # save the kNN Model
 np.savez('knn_data.npz',train=train, train_labels=trainData)
@@ -343,10 +346,15 @@ def knnresult():
 
         test_img = cv2.imread('letter.png')
         test_img = cv2.cvtColor(test_img, cv2.COLOR_BGR2GRAY)
-        test_img = cv2.resize(test_img, (20, 20))½
+        test_img = cv2.resize(test_img, (20, 20))
         x = np.array(test_img)
         test_img = x.reshape(-1, 400).astype(np.float32)
+
+        print(testData)
+
         ret, result, neighbours, dist = knn.findNearest(test_img, k=5)
+        #result.ravel()
+
         # Print the predicted number
         print('int', result)
 

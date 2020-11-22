@@ -8,10 +8,17 @@ if TS:
 import cv2
 import matplotlib.pyplot as plt
 import numpy as np
+import operator
 
+
+
+MIN_CONTOUR_AREA = 100
+RESIZED_IMAGE_WIDTH = 20
+RESIZED_IMAGE_HEIGHT = 30
+strFinalString = ""  # declare final string, this will have the final number sequence by the end of the program
 # Load original image
-imgOriginal = cv2.imread('bilnummerplade10.jpg')
-img2 = cv2.imread('bilnummerplade10.jpg',0)
+imgOriginal = cv2.imread('13020185.jpg')
+img2 = cv2.imread('13020185.jpg',0)
 
 class Tesseract:
     def __init__(self, img):
@@ -23,27 +30,6 @@ class Tesseract:
         print(out_below)
 
 
-# Load the data and convert the letters to numbers
-data= np.loadtxt('letter-recognition.data', dtype= 'float32', delimiter = ',',
-                 converters= {0: lambda ch: ord(ch)-ord('A')})
-# Split the dataset in two, with 10000 samples each for training and test sets
-train, test = np.vsplit(data,2)
-# Split trainData and testData into features and responses
-responses, trainData = np.hsplit(train,[1])
-labels, testData = np.hsplit(test,[1])
-# Initiate the kNN, classify, measure accuracy
-knn = cv2.ml.KNearest_create()
-knn.train(trainData, cv2.ml.ROW_SAMPLE, responses)
-ret, result, neighbours, dist = knn.findNearest(testData, k=5)
-print(testData)
-
-correct = np.count_nonzero(result == labels)
-accuracy = correct*100.0/10000
-print( accuracy )
-print(knn.findNearest)
-
-# save the kNN Model
-np.savez('knn_data.npz',train=train, train_labels=trainData)
 
 #Empty arrays for the grayscale and binary version of the image
 grayImg = np.zeros((imgOriginal.shape[0],imgOriginal.shape[1]))
@@ -332,38 +318,147 @@ def grassFire(y, x, XYArray, append, img, visited, queue):
             plt.title("Letter")
             plt.show()
             cv2.imwrite('letter.png',letter)
-            knnresult()
-
-
-def knnresult():
-    with np.load('knn_data.npz') as data:
-        print(data.files)
-        train = data['train']
-        trainData = data['train_labels']
-
-        knn = cv2.ml.KNearest_create()
-        knn.train(train, cv2.ml.ROW_SAMPLE, trainData)
-
-        test_img = cv2.imread('letter.png')
-        test_img = cv2.cvtColor(test_img, cv2.COLOR_BGR2GRAY)
-        test_img = cv2.resize(test_img, (20, 20))
-        x = np.array(test_img)
-        test_img = x.reshape(-1, 400).astype(np.float32)
-
-        print(testData)
-
-        ret, result, neighbours, dist = knn.findNearest(test_img, k=5)
-        #result.ravel()
-
-        # Print the predicted number
-        print('int', result)
 
 
 
 
 
-knnresult()
-#½grayScale(imgOriginal)
+# module level variables ##########################################################################
+MIN_CONTOUR_AREA = 100
+
+RESIZED_IMAGE_WIDTH = 20
+RESIZED_IMAGE_HEIGHT = 30
+
+###################################################################################################
+class ContourWithData():
+
+    # member variables ############################################################################
+    npaContour = None           # contour
+    boundingRect = None         # bounding rect for contour
+    intRectX = 0                # bounding rect top left corner x location
+    intRectY = 0                # bounding rect top left corner y location
+    intRectWidth = 0            # bounding rect width
+    intRectHeight = 0           # bounding rect height
+    fltArea = 0.0               # area of contour
+
+    def calculateRectTopLeftPointAndWidthAndHeight(self):               # calculate bounding rect info
+        [intX, intY, intWidth, intHeight] = self.boundingRect
+        self.intRectX = intX
+        self.intRectY = intY
+        self.intRectWidth = intWidth
+        self.intRectHeight = intHeight
+
+    def checkIfContourIsValid(self):                            # this is oversimplified, for a production grade program
+        if self.fltArea < MIN_CONTOUR_AREA: return False        # much better validity checking would be necessary
+        return True
+
+###################################################################################################
+def knnresult2():
+    allContoursWithData = []                # declare empty lists,
+    validContoursWithData = []              # we will fill these shortly
+
+    try:
+        npaClassifications = np.loadtxt("classifications.txt", np.float32)                  # read in training classifications
+    except:
+        print ("error, unable to open classifications.txt, exiting program\n")
+        os.system("pause")
+        return
+    # end try
+
+    try:
+        npaFlattenedImages = np.loadtxt("flattened_images.txt", np.float32)                 # read in training images
+    except:
+        print ("error, unable to open flattened_images.txt, exiting program\n")
+        os.system("pause")
+        return
+    # end try
+
+    npaClassifications = npaClassifications.reshape((npaClassifications.size, 1))       # reshape numpy array to 1d, necessary to pass to call to train
+
+    kNearest = cv2.ml.KNearest_create()                   # instantiate KNN object
+
+    kNearest.train(npaFlattenedImages, cv2.ml.ROW_SAMPLE, npaClassifications)
+
+    imgTestingNumbers = cv2.imread("letter.png")          # read in testing numbers image
+
+    if imgTestingNumbers is None:                           # if image was not read successfully
+        print ("error: image not read from file \n\n")        # print error message to std out
+        os.system("pause")                                  # pause so user can see error message
+        return                                              # and exit function (which exits program)
+    # end if
+
+    imgGray = cv2.cvtColor(imgTestingNumbers, cv2.COLOR_BGR2GRAY)       # get grayscale image
+    imgBlurred = cv2.GaussianBlur(imgGray, (5,5), 0)                    # blur
+
+                                                        # filter image from grayscale to black and white
+    imgThresh = cv2.adaptiveThreshold(imgBlurred,                           # input image
+                                      255,                                  # make pixels that pass the threshold full white
+                                      cv2.ADAPTIVE_THRESH_GAUSSIAN_C,       # use gaussian rather than mean, seems to give better results
+                                      cv2.THRESH_BINARY_INV,                # invert so foreground will be white, background will be black
+                                      11,                                   # size of a pixel neighborhood used to calculate threshold value
+                                      2)                                    # constant subtracted from the mean or weighted mean
+
+    imgThreshCopy = imgThresh.copy()        # make a copy of the thresh image, this in necessary b/c findContours modifies the image
+
+    imgContours, npaContours, npaHierarchy = cv2.findContours(imgThreshCopy,             # input image, make sure to use a copy since the function will modify this image in the course of finding contours
+                                                 cv2.RETR_EXTERNAL,         # retrieve the outermost contours only
+                                                 cv2.CHAIN_APPROX_SIMPLE)   # compress horizontal, vertical, and diagonal segments and leave only their end points
+
+    for npaContour in npaContours:                             # for each contour
+        contourWithData = ContourWithData()                                             # instantiate a contour with data object
+        contourWithData.npaContour = npaContour                                         # assign contour to contour with data
+        contourWithData.boundingRect = cv2.boundingRect(contourWithData.npaContour)     # get the bounding rect
+        contourWithData.calculateRectTopLeftPointAndWidthAndHeight()                    # get bounding rect info
+        contourWithData.fltArea = cv2.contourArea(contourWithData.npaContour)           # calculate the contour area
+        allContoursWithData.append(contourWithData)                                     # add contour with data object to list of all contours with data
+    # end for
+
+    for contourWithData in allContoursWithData:                 # for all contours
+        if contourWithData.checkIfContourIsValid():             # check if valid
+            validContoursWithData.append(contourWithData)       # if so, append to valid contour list
+        # end if
+    # end for
+
+    validContoursWithData.sort(key = operator.attrgetter("intRectX"))         # sort contours from left to right
+
+    strFinalString = ""         # declare final string, this will have the final number sequence by the end of the program
+
+    for contourWithData in validContoursWithData:            # for each contour
+                                                # draw a green rect around the current char
+        cv2.rectangle(imgTestingNumbers,                                        # draw rectangle on original testing image
+                      (contourWithData.intRectX, contourWithData.intRectY),     # upper left corner
+                      (contourWithData.intRectX + contourWithData.intRectWidth, contourWithData.intRectY + contourWithData.intRectHeight),      # lower right corner
+                      (0, 255, 0),              # green
+                      2)                        # thickness
+
+        imgROI = imgThresh[contourWithData.intRectY : contourWithData.intRectY + contourWithData.intRectHeight,     # crop char out of threshold image
+                           contourWithData.intRectX : contourWithData.intRectX + contourWithData.intRectWidth]
+
+        imgROIResized = cv2.resize(imgROI, (RESIZED_IMAGE_WIDTH, RESIZED_IMAGE_HEIGHT))             # resize image, this will be more consistent for recognition and storage
+
+        npaROIResized = imgROIResized.reshape((1, RESIZED_IMAGE_WIDTH * RESIZED_IMAGE_HEIGHT))      # flatten image into 1d numpy array
+
+        npaROIResized = np.float32(npaROIResized)       # convert from 1d numpy array of ints to 1d numpy array of floats
+
+        retval, npaResults, neigh_resp, dists = kNearest.findNearest(npaROIResized, k = 1)     # call KNN function find_nearest
+
+        strCurrentChar = str(chr(int(npaResults[0][0])))                                             # get character from results
+
+        strFinalString = strFinalString + strCurrentChar            # append current char to full string
+    # end for
+
+    print ("\n" + strFinalString + "\n")                  # show the full string
+
+    cv2.imshow("imgTestingNumbers", imgTestingNumbers)      # show input image with green boxes drawn around found digits
+    cv2.waitKey(0)                                          # wait for user key press
+
+    cv2.destroyAllWindows()             # remove windows from memory
+
+    return
+
+
+#grayScale(imgOriginal)
+knnresult2()
 #sobel(img2)
 #nMax = cv2.imread('non_max.jpg',0)
 #trackEdge(nMax)

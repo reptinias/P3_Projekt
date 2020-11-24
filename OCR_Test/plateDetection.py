@@ -1,7 +1,10 @@
+import math
 import os
 from collections import deque
 
 TS = False
+TM = False
+KNN = True
 
 if TS:
     import pytesseract as pt
@@ -19,6 +22,9 @@ RESIZED_IMAGE_HEIGHT = 30
 strFinalString = ""  # declare final string, this will have the final number sequence by the end of the program
 # Load original image
 imgOriginal = cv2.imread('bilnummerplade10.jpg')
+tem1 = cv2.imread('b.png',0)
+tem2 = cv2.imread('b2.png',0)
+temD = cv2.imread('d.png',0)
 
 class Tesseract:
     def __init__(self, img):
@@ -248,19 +254,20 @@ def detectPlate(img):
     resized = cv2.resize(nummerpladeFrame, dim, interpolation=cv2.INTER_AREA)
     resizedInv = cv2.resize(nummerpladeFrameInv, dim, interpolation=cv2.INTER_AREA)
 
-    cv2.imwrite('plate.jpg', nummerpladeFrame)
+    plate = cv2.imwrite('plate.jpg', nummerpladeFrame)
     pl = cv2.imread('plate.jpg')
     print('Completed')
+
+    #plt.imshow(nummerpladeFrame, cmap='gray')
+    #plt.title("Plate")
+    #plt.show()
 
     if TS:
         ts = Tesseract(pl)
         ts.getText()
-
-    plt.imshow(nummerpladeFrame, cmap='gray')
-    plt.title("Plate")
-    plt.show()
-
-    if not TS:
+    else:
+        if TM:
+            createTemps(lt, num)
         print('Detecting characters')
         count(resized, resizedInv)
 
@@ -319,15 +326,21 @@ def grassFire(y, x, XYArray, append, img, imgInv, visited, queue):
 
 
         if maxY - minY > 15 and maxX - minX > 10:
-            letter = imgInv[minY:maxY,  minX:maxX]
+            letter = img[minY:maxY,  minX:maxX]
+            letterInv = imgInv[minY:maxY,  minX:maxX]
             letterArray.append(letter)
-            cv2.imwrite('letter.png',letter)
-            result = knnresult2()
-            letters.append(result)
+            if TM:
+                cv2.imwrite('letter.png', letter)
+                lt = cv2.imread('letter.png',0)
+                result = templateMatch(lt)
+                letters.append(result)
+            elif KNN:
+                cv2.imwrite('letter.png', letterInv)
+                result = knnresult2()
+                letters.append(result)
             #plt.imshow(letter, cmap='gray')
             #plt.title("Letter")
             #plt.show()
-            cv2.imwrite('letter.png',letter)
 
 class ContourWithData():
     npaContour = None           # contour
@@ -380,5 +393,54 @@ def knnresult2():
     strCurrentChar = str(chr(int(npaResults[0][0])))                                             # get character from results
 
     return strCurrentChar
+
+templateArray =  [tem2,tem1]
+
+detectedObjects = []
+def notInList(newObject, thresholdDist):
+    for detectedObject in detectedObjects:
+        if math.hypot(newObject[0]-detectedObject[0], newObject[1]-detectedObject[1]) < thresholdDist:
+            return False
+    return True
+
+charArray = []
+def templateMatch(imgIn):
+    output = "?"
+
+    resizedP = cv2.resize(imgIn, (35,45), interpolation=cv2.INTER_AREA)
+    #resizedP = cv2.copyMakeBorder(imgIn, 5, 5, 5, 5, cv2.BORDER_CONSTANT, None, 255)
+    for i in range (0, len(charArray)):
+        tem = charArray[i]
+        cv2.imwrite('tem.png',tem)
+        tem = cv2.imread('tem.png',0)
+        tem = cv2.resize(tem, (35,45), interpolation=cv2.INTER_AREA)
+        #cv2.imshow('g',resizedP)
+        #cv2.waitKey(0)
+        res = cv2.matchTemplate(resizedP, tem, cv2.TM_CCOEFF_NORMED)
+        threshold = 0.7
+        loc = np.where(res >= threshold)
+        for pt in zip(*loc[::-1]):
+            print(i)
+            if len(detectedObjects) == 0 or notInList(pt, 15):
+                if i <=25:
+                    output = chr(ord('A')+i)
+                    return output
+                else:
+                    output = chr(ord('0')+(i-26))
+                    return output
+    return output
+
+def createTemps(letters,numbers):
+    for i in range (0,26):
+        letter = letters[8:52,(i * 38)+3:(i * 38 + 38)-2]
+        charArray.append(letter)
+    for i in range(0,10):
+        nums = numbers[5:51,(i * 38)+4:(i * 38 + 38)-5]
+        charArray.append(nums)
+
+lt = cv2.imread('letters.png',0)
+num = cv2.imread('numbers.png',0)
+plate = cv2.imread('plate.jpg',0)
+ina = cv2.imread('letter.png',0)
 
 grayScale(imgOriginal)

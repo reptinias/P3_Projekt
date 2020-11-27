@@ -27,39 +27,19 @@
   </component>
   <component name="PropertiesComponent">
     <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/OCR_Test" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
     <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable" />
   </component>
   <component name="RecentsManager">
-    <key name="CopyFile.RECENT_KEYS">
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="F:\User\Documents\GitHub\P3_Projekt\OCR_Test" />
       <recent name="C:\Users\Mads\Documents\GitHub\P3_Projekt\OCR_Test" />
     </key>
-    <key name="MoveFile.RECENT_KEYS">
+    <key name="CopyFile.RECENT_KEYS">
       <recent name="C:\Users\Mads\Documents\GitHub\P3_Projekt\OCR_Test" />
     </key>
   </component>
   <component name="RunManager" selected="Python.plateDetection">
-    <configuration name="BlobDetec" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
-      <module name="P3_Projekt" />
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/OCR_Test" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/OCR_Test/BlobDetec.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="false" />
-      <option name="MODULE_MODE" value="false" />
-      <option name="REDIRECT_INPUT" value="false" />
-      <option name="INPUT_FILE" value="" />
-      <method v="2" />
-    </configuration>
     <configuration name="OCRTest" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="P3_Projekt" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -73,6 +53,48 @@
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <option name="SCRIPT_NAME" value="$PROJECT_DIR$/OCR_Test/OCRTest.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="auto (1)" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="P3_Projekt" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/OCR_Test" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/OCR_Test/auto.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="auto" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="P3_Projekt" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="F:\User\Documents\GitHub\P3_Projekt\OCR_Test\auto.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -126,9 +148,10 @@
     <recent_temporary>
       <list>
         <item itemvalue="Python.plateDetection" />
+        <item itemvalue="Python.auto (1)" />
+        <item itemvalue="Python.auto" />
         <item itemvalue="Python.nummerpladeCutter" />
         <item itemvalue="Python.OCRTest" />
-        <item itemvalue="Python.BlobDetec" />
       </list>
     </recent_temporary>
   </component>
@@ -157,7 +180,7 @@
     </state>
     <state x="740" y="275" key="FileChooserDialogImpl/0.0.1920.1040/0.-1080.1920.1040/-2560.-145.2560.1400@0.0.1920.1040" timestamp="1606078623978" />
     <state x="740" y="275" key="FileChooserDialogImpl/0.0.1920.1040/1920.0.1920.1160/-1680.28.1680.1010@0.0.1920.1040" timestamp="1603291046392" />
-    <state width="949" height="239" key="GridCell.Tab.0.bottom" timestamp="1606082882060">
+    <state width="1899" height="172" key="GridCell.Tab.0.bottom" timestamp="1606295919271">
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
     <state width="1259" height="163" key="GridCell.Tab.0.bottom/0.0.1280.680@0.0.1280.680" timestamp="1603802276296" />
@@ -165,8 +188,8 @@
     <state width="1659" height="281" key="GridCell.Tab.0.bottom/0.0.1920.1040/1920.0.1920.1160/-1680.28.1680.1010@-1680.28.1680.1010" timestamp="1603438660311" />
     <state width="1899" height="246" key="GridCell.Tab.0.bottom/0.0.1920.1040/1920.0.1920.1160/-1680.28.1680.1010@0.0.1920.1040" timestamp="1604392774394" />
     <state width="1899" height="281" key="GridCell.Tab.0.bottom/0.0.1920.1040/1920.0.1920.1160/-1680.28.1680.1010@1920.0.1920.1160" timestamp="1603483954473" />
-    <state width="1899" height="218" key="GridCell.Tab.0.bottom/0.0.1920.1040@0.0.1920.1040" timestamp="1605609429620" />
-    <state width="949" height="239" key="GridCell.Tab.0.center" timestamp="1606082882059">
+    <state width="1899" height="172" key="GridCell.Tab.0.bottom/0.0.1920.1040@0.0.1920.1040" timestamp="1606295919271" />
+    <state width="1899" height="172" key="GridCell.Tab.0.center" timestamp="1606295919271">
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
     <state width="1259" height="163" key="GridCell.Tab.0.center/0.0.1280.680@0.0.1280.680" timestamp="1603802276296" />
@@ -174,8 +197,8 @@
     <state width="1659" height="281" key="GridCell.Tab.0.center/0.0.1920.1040/1920.0.1920.1160/-1680.28.1680.1010@-1680.28.1680.1010" timestamp="1603438660311" />
     <state width="1899" height="246" key="GridCell.Tab.0.center/0.0.1920.1040/1920.0.1920.1160/-1680.28.1680.1010@0.0.1920.1040" timestamp="1604392774394" />
     <state width="1899" height="281" key="GridCell.Tab.0.center/0.0.1920.1040/1920.0.1920.1160/-1680.28.1680.1010@1920.0.1920.1160" timestamp="1603483954473" />
-    <state width="1899" height="218" key="GridCell.Tab.0.center/0.0.1920.1040@0.0.1920.1040" timestamp="1605609429619" />
-    <state width="949" height="239" key="GridCell.Tab.0.left" timestamp="1606082882059">
+    <state width="1899" height="172" key="GridCell.Tab.0.center/0.0.1920.1040@0.0.1920.1040" timestamp="1606295919271" />
+    <state width="1899" height="172" key="GridCell.Tab.0.left" timestamp="1606295919271">
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
     <state width="1259" height="163" key="GridCell.Tab.0.left/0.0.1280.680@0.0.1280.680" timestamp="1603802276296" />
@@ -183,8 +206,8 @@
     <state width="1659" height="281" key="GridCell.Tab.0.left/0.0.1920.1040/1920.0.1920.1160/-1680.28.1680.1010@-1680.28.1680.1010" timestamp="1603438660310" />
     <state width="1899" height="246" key="GridCell.Tab.0.left/0.0.1920.1040/1920.0.1920.1160/-1680.28.1680.1010@0.0.1920.1040" timestamp="1604392774394" />
     <state width="1899" height="281" key="GridCell.Tab.0.left/0.0.1920.1040/1920.0.1920.1160/-1680.28.1680.1010@1920.0.1920.1160" timestamp="1603483954473" />
-    <state width="1899" height="218" key="GridCell.Tab.0.left/0.0.1920.1040@0.0.1920.1040" timestamp="1605609429619" />
-    <state width="949" height="239" key="GridCell.Tab.0.right" timestamp="1606082882059">
+    <state width="1899" height="172" key="GridCell.Tab.0.left/0.0.1920.1040@0.0.1920.1040" timestamp="1606295919271" />
+    <state width="1899" height="172" key="GridCell.Tab.0.right" timestamp="1606295919271">
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
     <state width="1259" height="163" key="GridCell.Tab.0.right/0.0.1280.680@0.0.1280.680" timestamp="1603802276296" />
@@ -192,7 +215,7 @@
     <state width="1659" height="281" key="GridCell.Tab.0.right/0.0.1920.1040/1920.0.1920.1160/-1680.28.1680.1010@-1680.28.1680.1010" timestamp="1603438660311" />
     <state width="1899" height="246" key="GridCell.Tab.0.right/0.0.1920.1040/1920.0.1920.1160/-1680.28.1680.1010@0.0.1920.1040" timestamp="1604392774394" />
     <state width="1899" height="281" key="GridCell.Tab.0.right/0.0.1920.1040/1920.0.1920.1160/-1680.28.1680.1010@1920.0.1920.1160" timestamp="1603483954473" />
-    <state width="1899" height="218" key="GridCell.Tab.0.right/0.0.1920.1040@0.0.1920.1040" timestamp="1605609429619" />
+    <state width="1899" height="172" key="GridCell.Tab.0.right/0.0.1920.1040@0.0.1920.1040" timestamp="1606295919271" />
     <state x="461" y="165" key="SettingsEditor" timestamp="1603436673525">
       <screen x="0" y="0" width="1920" height="1040" />
     </state>

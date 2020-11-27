@@ -22,9 +22,6 @@ RESIZED_IMAGE_HEIGHT = 30
 strFinalString = ""  # declare final string, this will have the final number sequence by the end of the program
 # Load original image
 imgOriginal = cv2.imread('bilnummerplade10.jpg')
-tem1 = cv2.imread('b.png',0)
-tem2 = cv2.imread('b2.png',0)
-temD = cv2.imread('d.png',0)
 
 class Tesseract:
     def __init__(self, img):
@@ -105,7 +102,6 @@ def blur(kernel,img):
     #plt.imshow(filteredImage, cmap='gray')
     #plt.title("Output Image using 5X5 Kernel")
     #plt.show()
-
     sobel(filteredImage)
 
 #Apply sobel kernels to the filtered image (Step 3)
@@ -394,8 +390,6 @@ def knnresult2():
 
     return strCurrentChar
 
-templateArray =  [tem2,tem1]
-
 detectedObjects = []
 def notInList(newObject, thresholdDist):
     for detectedObject in detectedObjects:
@@ -440,7 +434,5 @@ def createTemps(letters,numbers):
 
 lt = cv2.imread('letters.png',0)
 num = cv2.imread('numbers.png',0)
-plate = cv2.imread('plate.jpg',0)
-ina = cv2.imread('letter.png',0)
 
 grayScale(imgOriginal)

@@ -2,6 +2,8 @@ import math
 import os
 from collections import deque
 
+import imutils
+
 TS = False
 TM = False
 KNN = True
@@ -23,16 +25,19 @@ strFinalString = ""  # declare final string, this will have the final number seq
 # Load original image
 imgOriginal = cv2.imread('bilnummerplade10.jpg')
 
+#Tesseract setup
 class Tesseract:
     def __init__(self, img):
         self.img = img
 
     def getText(self):
+        #Local Tesseract path
         pt.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
+        #Which characters to look for
         out_below = pt.image_to_string(self.img, config='-c tessedit_char_whitelist=0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ --psm 10')
         print(out_below)
 
-#Empty arrays for the grayscale and binary version of the image
+#Empty arrays for the grayscale and binary versions of the image
 grayImg = np.zeros((imgOriginal.shape[0],imgOriginal.shape[1]))
 binaryImg = np.zeros((imgOriginal.shape[0],imgOriginal.shape[1]))
 binaryImg2 = np.zeros((imgOriginal.shape[0],imgOriginal.shape[1]))
@@ -71,10 +76,12 @@ def grayScale(img):
             if px >= 70:
                 binaryImg[i, j] = 255
                 binaryImg2[i, j] = 0
+            #Convert to inverted binary
             else:
                 binaryImg[i, j] = 0
                 binaryImg2[i, j] = 255
 
+    #Save the images
     cv2.imwrite('grayImg.jpg', grayImg)
     cv2.imwrite('binaryImg2.jpg', binaryImg2)
     cv2.imwrite('binaryImg.jpg',binaryImg)
@@ -123,10 +130,12 @@ def sobel(img):
     GxOut = convolute(img, Gx)
     GyOut = convolute(img, Gy)
 
+    #Calculate edge slope for each pixel
     for row in range(imgRow):
         for col in range(imgCol):
             angle[row, col] = np.arctan2(GyOut[row, col], GxOut[row, col])
 
+    #Calculate edge magnitude
     G = np.sqrt(GxOut**2 + GyOut**2)
 
     #plt.imshow(G, cmap='gray')
@@ -231,11 +240,16 @@ def trackEdge(img):
 def detectPlate(img):
     print('Detecting license plate')
     img = img.astype(np.uint8)
-    _, contours, _ = cv2.findContours(img, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+    contours = cv2.findContours(img, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+    contours = imutils.grab_contours(contours)
+    contours = sorted(contours, key=cv2.contourArea, reverse=True)[:10]
 
-    areas = [cv2.contourArea(c) for c in contours]
-    max_index = np.argmax(areas)
-    cnt = contours[max_index]
+    for c in contours:
+        perimeter = cv2.arcLength(c, True)
+        approx = cv2.approxPolyDP(c, 0.01 * perimeter, True)
+        if len(approx) == 4:
+            cnt = approx
+            break
 
     x, y, w, h = cv2.boundingRect(cnt)
     cv2.rectangle(binaryImg, (x, y), (x + w, y + h), (0, 255, 0), 2)
@@ -254,9 +268,9 @@ def detectPlate(img):
     pl = cv2.imread('plate.jpg')
     print('Completed')
 
-    #plt.imshow(nummerpladeFrame, cmap='gray')
-    #plt.title("Plate")
-    #plt.show()
+    plt.imshow(nummerpladeFrame, cmap='gray')
+    plt.title("Plate")
+    plt.show()
 
     if TS:
         ts = Tesseract(pl)
@@ -408,8 +422,6 @@ def templateMatch(imgIn):
         cv2.imwrite('tem.png',tem)
         tem = cv2.imread('tem.png',0)
         tem = cv2.resize(tem, (35,45), interpolation=cv2.INTER_AREA)
-        #cv2.imshow('g',resizedP)
-        #cv2.waitKey(0)
         res = cv2.matchTemplate(resizedP, tem, cv2.TM_CCOEFF_NORMED)
         threshold = 0.7
         loc = np.where(res >= threshold)

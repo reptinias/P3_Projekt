@@ -1,5 +1,6 @@
 import math
 import os
+import sys
 from collections import deque
 
 import imutils
@@ -23,7 +24,7 @@ RESIZED_IMAGE_WIDTH = 20
 RESIZED_IMAGE_HEIGHT = 30
 strFinalString = ""  # declare final string, this will have the final number sequence by the end of the program
 # Load original image
-imgOriginal = cv2.imread('bilnummerplade10.jpg')
+imgOriginal = cv2.imread('img0.jpg')
 
 #Tesseract setup
 class Tesseract:
@@ -37,10 +38,10 @@ class Tesseract:
         out_below = pt.image_to_string(self.img, config='-c tessedit_char_whitelist=0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ --psm 10')
         print(out_below)
 
-#Empty arrays for the grayscale and binary versions of the image
-grayImg = np.zeros((imgOriginal.shape[0],imgOriginal.shape[1]))
-binaryImg = np.zeros((imgOriginal.shape[0],imgOriginal.shape[1]))
-binaryImg2 = np.zeros((imgOriginal.shape[0],imgOriginal.shape[1]))
+# Empty arrays for the grayscale and binary versions of the image
+grayImg = np.zeros((imgOriginal.shape[0], imgOriginal.shape[1]))
+binaryImg = np.zeros((imgOriginal.shape[0], imgOriginal.shape[1]))
+binaryImg2 = np.zeros((imgOriginal.shape[0], imgOriginal.shape[1]))
 
 #Convolution function
 def convolute(img, filter):
@@ -60,8 +61,11 @@ def convolute(img, filter):
             output[row, col] /= filter.shape[0] * filter.shape[1]
     return output
 
+
 #Gray scaling (Step 1)
 def grayScale(img):
+
+
     print('Running gray scaling')
     height, width, channel = img.shape
 
@@ -69,11 +73,11 @@ def grayScale(img):
         for j in range(width):
             #Convert to grayscale
             r, g, b = img[i, j]
-            px = r*0.3 + 0.6*g + 0.1*b
+            px = r*0.31 + 0.59*g + 0.1*b
             grayImg[i, j] = px
 
             #Convert to binary
-            if px >= 70:
+            if px >= 90:
                 binaryImg[i, j] = 255
                 binaryImg2[i, j] = 0
             #Convert to inverted binary
@@ -85,7 +89,9 @@ def grayScale(img):
     cv2.imwrite('grayImg.jpg', grayImg)
     cv2.imwrite('binaryImg2.jpg', binaryImg2)
     cv2.imwrite('binaryImg.jpg',binaryImg)
-
+    plt.imshow(binaryImg, cmap='gray')
+    plt.title("binary")
+    plt.show()
     print('Completed')
     generate_gauss_kernel(5, grayImg)
 
@@ -243,13 +249,15 @@ def detectPlate(img):
     contours = cv2.findContours(img, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
     contours = imutils.grab_contours(contours)
     contours = sorted(contours, key=cv2.contourArea, reverse=True)[:10]
-
+    cnt = None
     for c in contours:
         perimeter = cv2.arcLength(c, True)
         approx = cv2.approxPolyDP(c, 0.01 * perimeter, True)
         if len(approx) == 4:
             cnt = approx
             break
+    if cnt is None:
+        return None
 
     x, y, w, h = cv2.boundingRect(cnt)
     cv2.rectangle(binaryImg, (x, y), (x + w, y + h), (0, 255, 0), 2)
@@ -265,12 +273,12 @@ def detectPlate(img):
     resizedInv = cv2.resize(nummerpladeFrameInv, dim, interpolation=cv2.INTER_AREA)
 
     plate = cv2.imwrite('plate.jpg', nummerpladeFrame)
-    pl = cv2.imread('plate.jpg')
+    #pl = cv2.imread('plate.jpg')
     print('Completed')
 
-    plt.imshow(nummerpladeFrame, cmap='gray')
-    plt.title("Plate")
-    plt.show()
+    #plt.imshow(resized, cmap='gray')
+    #plt.title("Plate")
+    #plt.show()
 
     if TS:
         ts = Tesseract(pl)
@@ -301,56 +309,58 @@ letterArray = []
 letters = []
 
 def grassFire(y, x, XYArray, append, img, imgInv, visited, queue):
+    try:
+        if append == True:
+            visited[y][x] = 1
+            XYArray.append([x, y])
+            queue.append([x, y])
+        append = True
 
-    if append == True:
-        visited[y][x] = 1
-        XYArray.append([x, y])
-        queue.append([x, y])
-    append = True
+        if x + 1 < img.shape[1] and img[y][x + 1] == 0 and visited[y][x + 1] != 1:
+            grassFire(y, x + 1, XYArray, append, img, imgInv, visited, queue)
 
-    if x + 1 < img.shape[1] and img[y][x + 1] == 0 and visited[y][x + 1] != 1:
-        grassFire(y, x + 1, XYArray, append, img, imgInv, visited, queue)
+        elif y + 1 < img.shape[0] and img[y + 1][x] == 0 and visited[y + 1][x] != 1:
+            grassFire(y + 1, x, XYArray, append, img, imgInv,visited, queue)
 
-    elif y + 1 < img.shape[0] and img[y + 1][x] == 0 and visited[y + 1][x] != 1:
-        grassFire(y + 1, x, XYArray, append, img, imgInv,visited, queue)
+        elif x > 0 and img[y][x - 1] == 0 and visited[y][x - 1] != 1:
+            grassFire(y, x - 1, XYArray, append, img, imgInv,visited, queue)
 
-    elif x > 0 and img[y][x - 1] == 0 and visited[y][x - 1] != 1:
-        grassFire(y, x - 1, XYArray, append, img, imgInv,visited, queue)
+        elif y > 0 and img[y - 1][x] == 0 and visited[y - 1][x] != 1:
+            grassFire(y - 1, x, XYArray, append, img, imgInv, visited, queue)
 
-    elif y > 0 and img[y - 1][x] == 0 and visited[y - 1][x] != 1:
-        grassFire(y - 1, x, XYArray, append, img, imgInv, visited, queue)
+        elif len(queue) != 0:
+            append = False
+            x, y = queue.pop()
+            grassFire(y, x, XYArray, append, img, imgInv, visited, queue)
 
-    elif len(queue) != 0:
-        append = False
-        x, y = queue.pop()
-        grassFire(y, x, XYArray, append, img, imgInv, visited, queue)
+        else:
+            xArray, yArray = zip(*XYArray)
 
-    else:
-        xArray, yArray = zip(*XYArray)
+            maxX = max(xArray)
+            maxY = max(yArray)
 
-        maxX = max(xArray)
-        maxY = max(yArray)
-
-        minX = min(xArray)
-        minY = min(yArray)
+            minX = min(xArray)
+            minY = min(yArray)
 
 
-        if maxY - minY > 15 and maxX - minX > 10:
-            letter = img[minY:maxY,  minX:maxX]
-            letterInv = imgInv[minY:maxY,  minX:maxX]
-            letterArray.append(letter)
-            if TM:
-                cv2.imwrite('letter.png', letter)
-                lt = cv2.imread('letter.png',0)
-                result = templateMatch(lt)
-                letters.append(result)
-            elif KNN:
-                cv2.imwrite('letter.png', letterInv)
-                result = knnresult2()
-                letters.append(result)
-            #plt.imshow(letter, cmap='gray')
-            #plt.title("Letter")
-            #plt.show()
+            if maxY - minY > 15 and maxX - minX > 10:
+                letter = img[minY:maxY,  minX:maxX]
+                letterInv = imgInv[minY:maxY,  minX:maxX]
+                letterArray.append(letter)
+                if TM:
+                    cv2.imwrite('letter.png', letter)
+                    lt = cv2.imread('letter.png',0)
+                    result = templateMatch(lt)
+                    letters.append(result)
+                elif KNN:
+                    cv2.imwrite('letter.png', letterInv)
+                    result = knnresult2()
+                    letters.append(result)
+                #plt.imshow(letter, cmap='gray')
+                #plt.title("Letter")
+                #plt.show()
+    except:
+        print('Grassfire error')
 
 class ContourWithData():
     npaContour = None           # contour
@@ -446,5 +456,22 @@ def createTemps(letters,numbers):
 
 lt = cv2.imread('letters.png',0)
 num = cv2.imread('numbers.png',0)
+images = []
+#print(sys.getrecursionlimit())
+sys.setrecursionlimit(2000)
+def loadImages(folder):
+    print('Loading data set')
+    for file in os.listdir(folder):
+        img = cv2.imread(os.path.join(folder, file))
+        if img is not None:
+            images.append(img)
+    print('Completed')
 
-grayScale(imgOriginal)
+loadImages(r'F:\User\Documents\GitHub\P3_Projekt\OCR_Test\License_plates')
+for img in images:
+    letters = []
+
+    grayScale(img)
+    pl = cv2.imread('plate.jpg')
+    cv2.imshow('Plate',pl)
+    cv2.waitKey(0)

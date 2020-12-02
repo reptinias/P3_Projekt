@@ -65,7 +65,6 @@ def convolute(img, filter):
 #Gray scaling (Step 1)
 def grayScale(img):
 
-
     print('Running gray scaling')
     height, width, channel = img.shape
 
@@ -73,9 +72,8 @@ def grayScale(img):
         for j in range(width):
             #Convert to grayscale
             r, g, b = img[i, j]
-            px = r*0.31 + 0.59*g + 0.1*b
+            px = r*0.1 + g*0.6 + b*0.3
             grayImg[i, j] = px
-
             #Convert to binary
             if px >= 90:
                 binaryImg[i, j] = 255
@@ -89,7 +87,7 @@ def grayScale(img):
     cv2.imwrite('grayImg.jpg', grayImg)
     cv2.imwrite('binaryImg2.jpg', binaryImg2)
     cv2.imwrite('binaryImg.jpg',binaryImg)
-    plt.imshow(binaryImg, cmap='gray')
+    plt.imshow(grayImg, cmap='gray')
     plt.title("binary")
     plt.show()
     print('Completed')
@@ -262,8 +260,8 @@ def detectPlate(img):
     x, y, w, h = cv2.boundingRect(cnt)
     cv2.rectangle(binaryImg, (x, y), (x + w, y + h), (0, 255, 0), 2)
 
-    nummerpladeFrame = binaryImg[y: y + h, x: x + w]
-    nummerpladeFrameInv = binaryImg2[y: y + h, x: x + w]
+    nummerpladeFrame = binaryImg[y: y + h, x+10: x + w-10]
+    nummerpladeFrameInv = binaryImg2[y: y + h, x+10: x + w-10]
 
     height = 50
     width = int(height * 4.75)
@@ -271,7 +269,6 @@ def detectPlate(img):
     #Resize image
     resized = cv2.resize(nummerpladeFrame, dim, interpolation=cv2.INTER_AREA)
     resizedInv = cv2.resize(nummerpladeFrameInv, dim, interpolation=cv2.INTER_AREA)
-
     plate = cv2.imwrite('plate.jpg', nummerpladeFrame)
     #pl = cv2.imread('plate.jpg')
     print('Completed')

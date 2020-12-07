@@ -250,11 +250,17 @@ def detectPlate(img):
     cnt = None
     for c in contours:
         perimeter = cv2.arcLength(c, True)
-        approx = cv2.approxPolyDP(c, 0.01 * perimeter, True)
+        approx = cv2.approxPolyDP(c, 0.05 * perimeter, True)
         if len(approx) == 4:
-            cnt = approx
-            break
+            x, y, w, h = cv2.boundingRect(approx)
+            print('Width: ' + str(w))
+            print('Height: ' + str(h))
+            aspectRatio = float(w) / h
+            if aspectRatio >= 3.9 and aspectRatio <= 5.2:
+                cnt = approx
+                break
     if cnt is None:
+        print('ERR - No license plate found')
         return None
 
     x, y, w, h = cv2.boundingRect(cnt)
@@ -464,7 +470,7 @@ def loadImages(folder):
             images.append(img)
     print('Completed')
 
-loadImages(r'F:\User\Documents\GitHub\P3_Projekt\OCR_Test\License_plates')
+loadImages(r'C:\Users\Ciprian\Documents\GitHub\P3_Projekt\OCR_Test\License_plates')
 for img in images:
     letters = []
 

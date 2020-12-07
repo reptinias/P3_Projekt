@@ -3,7 +3,40 @@
   <component name="ChangeListManager">
     <list default="true" id="bae2ef49-7fae-4318-aeaf-2d2907fade5d" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/OCR_Test/nummerpladeCutter.py" beforeDir="false" afterPath="$PROJECT_DIR$/OCR_Test/nummerpladeCutter.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/OCR_Test/13020185.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/OCR_Test/3.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/OCR_Test/3test.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/OCR_Test/9.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/OCR_Test/License_plates/1.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/OCR_Test/License_plates/1.jpg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/OCR_Test/License_plates/P02599.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/OCR_Test/License_plates/P02783.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/OCR_Test/bilnummerplade.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/OCR_Test/bilnummerplade10.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/OCR_Test/bilnummerplade2.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/OCR_Test/bilnummerplade3.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/OCR_Test/bilnummerplade4.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/OCR_Test/bilnummerplade5.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/OCR_Test/bilnummerplade6.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/OCR_Test/bilnummerplade7.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/OCR_Test/bilnummerplade8.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/OCR_Test/bilnummerplade9.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/OCR_Test/binaryImg.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/OCR_Test/binaryImg.jpg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/OCR_Test/binaryImg2.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/OCR_Test/binaryImg2.jpg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/OCR_Test/d.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/OCR_Test/digits.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/OCR_Test/edge.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/OCR_Test/edge.jpg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/OCR_Test/grayImg.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/OCR_Test/grayImg.jpg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/OCR_Test/img0.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/OCR_Test/imgT.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/OCR_Test/knn_data.npz" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/OCR_Test/letter.png" beforeDir="false" afterPath="$PROJECT_DIR$/OCR_Test/letter.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/OCR_Test/nummerplade.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/OCR_Test/plate.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/OCR_Test/plate.jpg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/OCR_Test/plateDetection.py" beforeDir="false" afterPath="$PROJECT_DIR$/OCR_Test/plateDetection.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/OCR_Test/plateInv.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/OCR_Test/tem.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/OCR_Test/test.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/OCR_Test/testnummerplader.jpg" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -184,37 +217,41 @@
     </state>
     <state x="740" y="275" key="FileChooserDialogImpl/0.0.1920.1040/0.-1080.1920.1040/-2560.-145.2560.1400@0.0.1920.1040" timestamp="1606078623978" />
     <state x="740" y="275" key="FileChooserDialogImpl/0.0.1920.1040/1920.0.1920.1160/-1680.28.1680.1010@0.0.1920.1040" timestamp="1603291046392" />
-    <state width="1899" height="192" key="GridCell.Tab.0.bottom" timestamp="1606915482997">
-      <screen x="0" y="0" width="1920" height="1040" />
+    <state width="1442" height="134" key="GridCell.Tab.0.bottom" timestamp="1607359572125">
+      <screen x="0" y="0" width="1463" height="783" />
     </state>
     <state width="1259" height="163" key="GridCell.Tab.0.bottom/0.0.1280.680@0.0.1280.680" timestamp="1603802276296" />
+    <state width="1442" height="134" key="GridCell.Tab.0.bottom/0.0.1463.783@0.0.1463.783" timestamp="1607359572125" />
     <state width="949" height="239" key="GridCell.Tab.0.bottom/0.0.1920.1040/0.-1080.1920.1040/-2560.-145.2560.1400@0.0.1920.1040" timestamp="1606082882060" />
     <state width="1659" height="281" key="GridCell.Tab.0.bottom/0.0.1920.1040/1920.0.1920.1160/-1680.28.1680.1010@-1680.28.1680.1010" timestamp="1603438660311" />
     <state width="1899" height="246" key="GridCell.Tab.0.bottom/0.0.1920.1040/1920.0.1920.1160/-1680.28.1680.1010@0.0.1920.1040" timestamp="1604392774394" />
     <state width="1899" height="281" key="GridCell.Tab.0.bottom/0.0.1920.1040/1920.0.1920.1160/-1680.28.1680.1010@1920.0.1920.1160" timestamp="1603483954473" />
     <state width="1899" height="192" key="GridCell.Tab.0.bottom/0.0.1920.1040@0.0.1920.1040" timestamp="1606915482997" />
-    <state width="1899" height="192" key="GridCell.Tab.0.center" timestamp="1606915482997">
-      <screen x="0" y="0" width="1920" height="1040" />
+    <state width="1442" height="134" key="GridCell.Tab.0.center" timestamp="1607359572125">
+      <screen x="0" y="0" width="1463" height="783" />
     </state>
     <state width="1259" height="163" key="GridCell.Tab.0.center/0.0.1280.680@0.0.1280.680" timestamp="1603802276296" />
+    <state width="1442" height="134" key="GridCell.Tab.0.center/0.0.1463.783@0.0.1463.783" timestamp="1607359572125" />
     <state width="949" height="239" key="GridCell.Tab.0.center/0.0.1920.1040/0.-1080.1920.1040/-2560.-145.2560.1400@0.0.1920.1040" timestamp="1606082882059" />
     <state width="1659" height="281" key="GridCell.Tab.0.center/0.0.1920.1040/1920.0.1920.1160/-1680.28.1680.1010@-1680.28.1680.1010" timestamp="1603438660311" />
     <state width="1899" height="246" key="GridCell.Tab.0.center/0.0.1920.1040/1920.0.1920.1160/-1680.28.1680.1010@0.0.1920.1040" timestamp="1604392774394" />
     <state width="1899" height="281" key="GridCell.Tab.0.center/0.0.1920.1040/1920.0.1920.1160/-1680.28.1680.1010@1920.0.1920.1160" timestamp="1603483954473" />
     <state width="1899" height="192" key="GridCell.Tab.0.center/0.0.1920.1040@0.0.1920.1040" timestamp="1606915482997" />
-    <state width="1899" height="192" key="GridCell.Tab.0.left" timestamp="1606915482997">
-      <screen x="0" y="0" width="1920" height="1040" />
+    <state width="1442" height="134" key="GridCell.Tab.0.left" timestamp="1607359572125">
+      <screen x="0" y="0" width="1463" height="783" />
     </state>
     <state width="1259" height="163" key="GridCell.Tab.0.left/0.0.1280.680@0.0.1280.680" timestamp="1603802276296" />
+    <state width="1442" height="134" key="GridCell.Tab.0.left/0.0.1463.783@0.0.1463.783" timestamp="1607359572125" />
     <state width="949" height="239" key="GridCell.Tab.0.left/0.0.1920.1040/0.-1080.1920.1040/-2560.-145.2560.1400@0.0.1920.1040" timestamp="1606082882059" />
     <state width="1659" height="281" key="GridCell.Tab.0.left/0.0.1920.1040/1920.0.1920.1160/-1680.28.1680.1010@-1680.28.1680.1010" timestamp="1603438660310" />
     <state width="1899" height="246" key="GridCell.Tab.0.left/0.0.1920.1040/1920.0.1920.1160/-1680.28.1680.1010@0.0.1920.1040" timestamp="1604392774394" />
     <state width="1899" height="281" key="GridCell.Tab.0.left/0.0.1920.1040/1920.0.1920.1160/-1680.28.1680.1010@1920.0.1920.1160" timestamp="1603483954473" />
     <state width="1899" height="192" key="GridCell.Tab.0.left/0.0.1920.1040@0.0.1920.1040" timestamp="1606915482997" />
-    <state width="1899" height="192" key="GridCell.Tab.0.right" timestamp="1606915482997">
-      <screen x="0" y="0" width="1920" height="1040" />
+    <state width="1442" height="134" key="GridCell.Tab.0.right" timestamp="1607359572125">
+      <screen x="0" y="0" width="1463" height="783" />
     </state>
     <state width="1259" height="163" key="GridCell.Tab.0.right/0.0.1280.680@0.0.1280.680" timestamp="1603802276296" />
+    <state width="1442" height="134" key="GridCell.Tab.0.right/0.0.1463.783@0.0.1463.783" timestamp="1607359572125" />
     <state width="949" height="239" key="GridCell.Tab.0.right/0.0.1920.1040/0.-1080.1920.1040/-2560.-145.2560.1400@0.0.1920.1040" timestamp="1606082882059" />
     <state width="1659" height="281" key="GridCell.Tab.0.right/0.0.1920.1040/1920.0.1920.1160/-1680.28.1680.1010@-1680.28.1680.1010" timestamp="1603438660311" />
     <state width="1899" height="246" key="GridCell.Tab.0.right/0.0.1920.1040/1920.0.1920.1160/-1680.28.1680.1010@0.0.1920.1040" timestamp="1604392774394" />

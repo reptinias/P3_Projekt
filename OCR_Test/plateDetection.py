@@ -2,7 +2,6 @@ import math
 import os
 import sys
 from collections import deque
-
 import imutils
 
 TS = False
@@ -15,22 +14,17 @@ if TS:
 import cv2
 import matplotlib.pyplot as plt
 import numpy as np
-import operator
-
-
 
 MIN_CONTOUR_AREA = 100
 RESIZED_IMAGE_WIDTH = 20
 RESIZED_IMAGE_HEIGHT = 30
 strFinalString = ""  # declare final string, this will have the final number sequence by the end of the program
-# Load original image
-imgOriginal = cv2.imread('img0.jpg')
 
-#Tesseract setup
 class Tesseract:
     def __init__(self, img):
         self.img = img
 
+    # Tesseract setup
     def getText(self):
         #Local Tesseract path
         pt.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
@@ -38,10 +32,10 @@ class Tesseract:
         out_below = pt.image_to_string(self.img, config='-c tessedit_char_whitelist=0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ --psm 10')
         print(out_below)
 
-# Empty arrays for the grayscale and binary versions of the image
-grayImg = np.zeros((imgOriginal.shape[0], imgOriginal.shape[1]))
-binaryImg = np.zeros((imgOriginal.shape[0], imgOriginal.shape[1]))
-binaryImg2 = np.zeros((imgOriginal.shape[0], imgOriginal.shape[1]))
+# Empty variables for the grayscale and binary arrays of the image
+grayImg = None
+binaryImg = None
+binaryImg2 = None
 
 #Convolution function
 def convolute(img, filter):
@@ -60,7 +54,6 @@ def convolute(img, filter):
             output[row, col] = np.sum(filter * padded_image[row:row + kernelRow, col:col + kernelCol])
             output[row, col] /= filter.shape[0] * filter.shape[1]
     return output
-
 
 #Gray scaling (Step 1)
 def grayScale(img):
@@ -88,31 +81,21 @@ def grayScale(img):
     cv2.imwrite('binaryImg2.jpg', binaryImg2)
     cv2.imwrite('binaryImg.jpg',binaryImg)
     plt.imshow(grayImg, cmap='gray')
-    plt.title("binary")
+    plt.title("Grayscale")
     plt.show()
     print('Completed')
-    generate_gauss_kernel(5, grayImg)
+    gaussianBlur(5, grayImg)
 
-#Generate 5X5 gaussian kernel (Step 2, pt.1)
-def generate_gauss_kernel(size, img, sigma=1):
-    print('Generating gaussian kernel')
+#Generate 5X5 gaussian kernel and apply filter (Step 2)
+def gaussianBlur(size, img, sigma=1):
+    print('Applying gaussian filter')
     kernel = np.zeros((size,size))
     img = img
     for x in range(0,size):
         for y in range(0,size):
             kernel[x,y] = 1/(np.sqrt(2 * np.pi * sigma ** 2)) * np.e ** (-x**2 + y**2/2*sigma**2)
-    print('Completed')
-    blur(kernel, img)
-
-#Apply the gaussian filter to the image (Step 2, pt.2)
-def blur(kernel,img):
-    print('Applying filter')
     filteredImage = convolute(img, kernel)
-
     print('Completed')
-    #plt.imshow(filteredImage, cmap='gray')
-    #plt.title("Output Image using 5X5 Kernel")
-    #plt.show()
     sobel(filteredImage)
 
 #Apply sobel kernels to the filtered image (Step 3)
@@ -234,9 +217,9 @@ def trackEdge(img):
     print('Completed')
 
     cv2.imwrite('edge.jpg',img)
-    #plt.imshow(img, cmap='gray')
-    #plt.title("Edge tracking")
-    #plt.show()
+    plt.imshow(img, cmap='gray')
+    plt.title("Edge tracking")
+    plt.show()
 
     detectPlate(img)
 
@@ -256,7 +239,7 @@ def detectPlate(img):
             print('Width: ' + str(w))
             print('Height: ' + str(h))
             aspectRatio = float(w) / h
-            if aspectRatio >= 3.9 and aspectRatio <= 5.2:
+            if aspectRatio >= 3.9 and aspectRatio <= 5.4:
                 cnt = approx
                 break
     if cnt is None:
@@ -266,8 +249,8 @@ def detectPlate(img):
     x, y, w, h = cv2.boundingRect(cnt)
     cv2.rectangle(binaryImg, (x, y), (x + w, y + h), (0, 255, 0), 2)
 
-    nummerpladeFrame = binaryImg[y: y + h, x+10: x + w-10]
-    nummerpladeFrameInv = binaryImg2[y: y + h, x+10: x + w-10]
+    nummerpladeFrame = binaryImg[y: y + h, x+10: x + w-5]
+    nummerpladeFrameInv = binaryImg2[y: y + h, x+10: x + w-5]
 
     height = 50
     width = int(height * 4.75)
@@ -276,7 +259,7 @@ def detectPlate(img):
     resized = cv2.resize(nummerpladeFrame, dim, interpolation=cv2.INTER_AREA)
     resizedInv = cv2.resize(nummerpladeFrameInv, dim, interpolation=cv2.INTER_AREA)
     plate = cv2.imwrite('plate.jpg', nummerpladeFrame)
-    #pl = cv2.imread('plate.jpg')
+    pl = cv2.imread('plate.jpg')
     print('Completed')
 
     #plt.imshow(resized, cmap='gray')
@@ -411,8 +394,9 @@ def knnresult2():
     npaROIResized = imgROIResized.reshape((1, RESIZED_IMAGE_WIDTH * RESIZED_IMAGE_HEIGHT))      # flatten image into 1d numpy array
     npaROIResized = np.float32(npaROIResized)       # convert from 1d numpy array of ints to 1d numpy array of floats
 
-    retval, npaResults, neigh_resp, dists = kNearest.findNearest(npaROIResized, k = 1)     # call KNN function find_nearest
-
+    retval, npaResults, neigh_resp, dists = kNearest.findNearest(npaROIResized, k = 3)     # call KNN function find_nearest
+    print(retval)
+    print(neigh_resp)
     strCurrentChar = str(chr(int(npaResults[0][0])))                                             # get character from results
 
     return strCurrentChar
@@ -429,14 +413,13 @@ def templateMatch(imgIn):
     output = "?"
 
     resizedP = cv2.resize(imgIn, (35,45), interpolation=cv2.INTER_AREA)
-    #resizedP = cv2.copyMakeBorder(imgIn, 5, 5, 5, 5, cv2.BORDER_CONSTANT, None, 255)
     for i in range (0, len(charArray)):
         tem = charArray[i]
         cv2.imwrite('tem.png',tem)
         tem = cv2.imread('tem.png',0)
         tem = cv2.resize(tem, (35,45), interpolation=cv2.INTER_AREA)
         res = cv2.matchTemplate(resizedP, tem, cv2.TM_CCOEFF_NORMED)
-        threshold = 0.7
+        threshold = 0.6
         loc = np.where(res >= threshold)
         for pt in zip(*loc[::-1]):
             print(i)
@@ -461,7 +444,7 @@ lt = cv2.imread('letters.png',0)
 num = cv2.imread('numbers.png',0)
 images = []
 #print(sys.getrecursionlimit())
-sys.setrecursionlimit(2000)
+sys.setrecursionlimit(3000)
 def loadImages(folder):
     print('Loading data set')
     for file in os.listdir(folder):
@@ -473,7 +456,9 @@ def loadImages(folder):
 loadImages(r'C:\Users\Ciprian\Documents\GitHub\P3_Projekt\OCR_Test\License_plates')
 for img in images:
     letters = []
-
+    grayImg = np.zeros((img.shape[0], img.shape[1]))
+    binaryImg = np.zeros((img.shape[0], img.shape[1]))
+    binaryImg2 = np.zeros((img.shape[0], img.shape[1]))
     grayScale(img)
     pl = cv2.imread('plate.jpg')
     cv2.imshow('Plate',pl)

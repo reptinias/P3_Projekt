@@ -4,9 +4,11 @@ import sys
 from collections import deque
 import imutils
 
-TS = True
+TS = False
 TM = False
-KNN = False
+KNN = True
+
+
 
 if TS:
     import pytesseract as pt
@@ -80,9 +82,9 @@ def grayScale(img):
     cv2.imwrite('grayImg.jpg', grayImg)
     cv2.imwrite('binaryImg2.jpg', binaryImg2)
     cv2.imwrite('binaryImg.jpg',binaryImg)
-    plt.imshow(grayImg, cmap='gray')
-    plt.title("Grayscale")
-    plt.show()
+    #plt.imshow(grayImg, cmap='gray')
+    #plt.title("Grayscale")
+    #plt.show()
     print('Completed')
     gaussianBlur(5, grayImg)
 
@@ -262,9 +264,9 @@ def detectPlate(img):
     pl = cv2.imread('plate.jpg')
     print('Completed')
 
-    #plt.imshow(resized, cmap='gray')
-    #plt.title("Plate")
-    #plt.show()
+    plt.imshow(resized, cmap='gray')
+    plt.title("Plate")
+    plt.show()
 
     if TS:
         ts = Tesseract(pl)
@@ -394,7 +396,7 @@ def knnresult2():
     npaROIResized = imgROIResized.reshape((1, RESIZED_IMAGE_WIDTH * RESIZED_IMAGE_HEIGHT))      # flatten image into 1d numpy array
     npaROIResized = np.float32(npaROIResized)       # convert from 1d numpy array of ints to 1d numpy array of floats
 
-    retval, npaResults, neigh_resp, dists = kNearest.findNearest(npaROIResized, k = 1)     # call KNN function find_nearest
+    retval, npaResults, neigh_resp, dists = kNearest.findNearest(npaROIResized, k = 5)     # call KNN function find_nearest
     print(retval)
     print(neigh_resp)
     strCurrentChar = str(chr(int(npaResults[0][0])))                                             # get character from results

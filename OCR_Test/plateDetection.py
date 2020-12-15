@@ -1,26 +1,24 @@
+#Import libraries
 import math
 import os
 import sys
 from collections import deque
 import imutils
-
-TS = False
-TM = False
-KNN = True
-
-
-
-if TS:
-    import pytesseract as pt
-
 import cv2
 import matplotlib.pyplot as plt
 import numpy as np
 
+#Choose classification method
+TS = False
+TM = False
+KNN = True
+
+if TS:
+    import pytesseract as pt
+
 MIN_CONTOUR_AREA = 100
 RESIZED_IMAGE_WIDTH = 20
 RESIZED_IMAGE_HEIGHT = 30
-strFinalString = ""  # declare final string, this will have the final number sequence by the end of the program
 
 class Tesseract:
     def __init__(self, img):
@@ -95,7 +93,9 @@ def gaussianBlur(size, img, sigma=1):
     img = img
     for x in range(0,size):
         for y in range(0,size):
+            #Gaussian equation for generating each value in the kernel
             kernel[x,y] = 1/(np.sqrt(2 * np.pi * sigma ** 2)) * np.e ** (-x**2 + y**2/2*sigma**2)
+    #Apply filter by convolution
     filteredImage = convolute(img, kernel)
     print('Completed')
     sobel(filteredImage)
@@ -106,6 +106,7 @@ def sobel(img):
     imgRow, imgCol = img.shape
     angle = np.zeros(img.shape)
 
+    #Sobel kernels (one for each direction)
     Gx = np.array \
         ([[-1,0,1],
           [-2,0,2],
@@ -142,11 +143,13 @@ def non_max(img, angle):
     angle = angle * 180. / np.pi
     angle[angle < 0] += 180
 
+    #Check each pixels directional neighbors values. If one is higher in intensity, set current pixel to zero (0)
     for row in range(1,imgRow-1):
         for col in range(1,imgCol-1):
             q = 255
             r = 255
 
+            #Check for each directional angle
             if(0 <= angle[row,col] < 22.5) or (157.5 <= angle[row,col] <= 180):
                 q = img[row,col+1]
                 r = img[row,col-1]
@@ -176,16 +179,18 @@ def non_max(img, angle):
 def doubleThreshold(img):
     print('Applying double threshold')
     row, col = img.shape
+    #Set strong and weak edge values
     weak = 25
     strong = 255
     output = np.zeros((row,col))
 
+    #Set high and low thresholds
     lowThresholdRatio = 0.05
     highThresholdRatio = 0.2
-
     highThresh = img.max() * highThresholdRatio
     lowThresh = highThresh * lowThresholdRatio
 
+    #Replace all edge values with strong or weak values
     weakX, weakY = np.where((img <= highThresh) & (img >= lowThresh))
     strongX, strongY = np.where(img >= highThresh)
 
@@ -202,6 +207,8 @@ def trackEdge(img):
     strong = 255
     weak = 25
 
+    #If a pixel value is weak, check if any of its neighbors (8-connected) is strong
+    #If so make value strong, else set to zero.
     for row in range(1, img.shape[0]-1):
         for col in range(1, img.shape[1]-1):
             if (img[row,col] == weak):
@@ -228,19 +235,25 @@ def trackEdge(img):
 #License plate detection (Step 7)
 def detectPlate(img):
     print('Detecting license plate')
+    #Find contours in image
     img = img.astype(np.uint8)
     contours = cv2.findContours(img, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
     contours = imutils.grab_contours(contours)
     contours = sorted(contours, key=cv2.contourArea, reverse=True)[:10]
     cnt = None
     for c in contours:
+        #Approximate the contour (5%)
         perimeter = cv2.arcLength(c, True)
         approx = cv2.approxPolyDP(c, 0.05 * perimeter, True)
+        #If the contour consists of four points
         if len(approx) == 4:
+            #Get contour dimensions
             x, y, w, h = cv2.boundingRect(approx)
             print('Width: ' + str(w))
             print('Height: ' + str(h))
+            #Calculate contour ratio between width and length
             aspectRatio = float(w) / h
+            #If the ratio is within the given threshold, save contour and continue.
             if aspectRatio >= 3.9 and aspectRatio <= 5.4:
                 cnt = approx
                 break
@@ -251,13 +264,15 @@ def detectPlate(img):
     x, y, w, h = cv2.boundingRect(cnt)
     cv2.rectangle(binaryImg, (x, y), (x + w, y + h), (0, 255, 0), 2)
 
+    #Cut out contour (license plate) based on its dimensions and location
     nummerpladeFrame = binaryImg[y: y + h, x+10: x + w-5]
     nummerpladeFrameInv = binaryImg2[y: y + h, x+10: x + w-5]
 
+    #Resize dimensions
     height = 50
     width = int(height * 4.75)
     dim = (width, height)
-    #Resize image
+    #Resize the license plate
     resized = cv2.resize(nummerpladeFrame, dim, interpolation=cv2.INTER_AREA)
     resizedInv = cv2.resize(nummerpladeFrameInv, dim, interpolation=cv2.INTER_AREA)
     plate = cv2.imwrite('plate.jpg', nummerpladeFrame)
@@ -268,6 +283,7 @@ def detectPlate(img):
     plt.title("Plate")
     plt.show()
 
+    #Different classification methods
     if TS:
         ts = Tesseract(pl)
         ts.getText()
@@ -410,19 +426,21 @@ def notInList(newObject, thresholdDist):
             return False
     return True
 
-charArray = []
 def templateMatch(imgIn):
     output = "?"
-
+    #Resize input image (character image)
     resizedP = cv2.resize(imgIn, (35,45), interpolation=cv2.INTER_AREA)
+    #For each character template
     for i in range (0, len(charArray)):
         tem = charArray[i]
         cv2.imwrite('tem.png',tem)
         tem = cv2.imread('tem.png',0)
         tem = cv2.resize(tem, (35,45), interpolation=cv2.INTER_AREA)
+        #Perform template match between input image and template
         res = cv2.matchTemplate(resizedP, tem, cv2.TM_CCOEFF_NORMED)
         threshold = 0.6
         loc = np.where(res >= threshold)
+        #If match above the threshold is found, print corresponding character
         for pt in zip(*loc[::-1]):
             print(i)
             if len(detectedObjects) == 0 or notInList(pt, 15):
@@ -434,10 +452,14 @@ def templateMatch(imgIn):
                     return output
     return output
 
+#Array for character templates
+charArray = []
 def createTemps(letters,numbers):
+    #Cut out letter template into individual character images
     for i in range (0,26):
         letter = letters[8:52,(i * 38)+3:(i * 38 + 38)-2]
         charArray.append(letter)
+    #Cut out number template into individual number images
     for i in range(0,10):
         nums = numbers[5:51,(i * 38)+4:(i * 38 + 38)-5]
         charArray.append(nums)
@@ -449,6 +471,7 @@ images = []
 sys.setrecursionlimit(3000)
 def loadImages(folder):
     print('Loading data set')
+    #Load all files in the given folder (car images)
     for file in os.listdir(folder):
         img = cv2.imread(os.path.join(folder, file))
         if img is not None:
@@ -457,10 +480,12 @@ def loadImages(folder):
 
 loadImages(r'C:\Users\Mads\Documents\GitHub\P3_Projekt\OCR_Test\License_plates')
 for img in images:
+    #Set up variables (for each new image)
     letters = []
     grayImg = np.zeros((img.shape[0], img.shape[1]))
     binaryImg = np.zeros((img.shape[0], img.shape[1]))
     binaryImg2 = np.zeros((img.shape[0], img.shape[1]))
+    #Start the process of reading the license plate from the image
     grayScale(img)
     pl = cv2.imread('plate.jpg')
     cv2.imshow('Plate',pl)

@@ -13,7 +13,7 @@ RESIZED_IMAGE_HEIGHT = 30
 
 ###################################################################################################
 def main():
-    imgTrainingNumbers = cv2.imread("training_chars.png")            # read in training numbers image
+    imgTrainingNumbers = cv2.imread("training_chars_new3.png")            # read in training numbers image
 
     if imgTrainingNumbers is None:                          # if image was not read successfully
         print ("error: image not read from file \n\n")        # print error message to std out
@@ -87,8 +87,8 @@ def main():
     npaClassifications = fltClassifications.reshape((fltClassifications.size, 1))   # flatten numpy array of floats to 1d so we can write to file later
     print ("\n\ntraining complete !!\n")
 
-    np.savetxt("classifications2.txt", npaClassifications)           # write flattened images to file
-    np.savetxt("flattened_images2.txt", npaFlattenedImages)          #
+    np.savetxt("classifications3.txt", npaClassifications)           # write flattened images to file
+    np.savetxt("flattened_images3.txt", npaFlattenedImages)          #
 
     cv2.destroyAllWindows()             # remove windows from memory
 

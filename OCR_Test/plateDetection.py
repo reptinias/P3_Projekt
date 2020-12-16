@@ -16,7 +16,6 @@ KNN = True
 if TS:
     import pytesseract as pt
 
-MIN_CONTOUR_AREA = 100
 RESIZED_IMAGE_WIDTH = 20
 RESIZED_IMAGE_HEIGHT = 30
 
@@ -366,56 +365,24 @@ def grassFire(y, x, XYArray, append, img, imgInv, visited, queue):
     except:
         print('Grassfire error')
 
-class ContourWithData():
-    npaContour = None           # contour
-    boundingRect = None         # bounding rect for contour
-    intRectX = 0                # bounding rect top left corner x location
-    intRectY = 0                # bounding rect top left corner y location
-    intRectWidth = 0            # bounding rect width
-    intRectHeight = 0           # bounding rect height
-    fltArea = 0.0               # area of contour
-
-    def calculateRectTopLeftPointAndWidthAndHeight(self):               # calculate bounding rect info
-        [intX, intY, intWidth, intHeight] = self.boundingRect
-        self.intRectX = intX
-        self.intRectY = intY
-        self.intRectWidth = intWidth
-        self.intRectHeight = intHeight
-
-    def checkIfContourIsValid(self):                            # this is oversimplified, for a production grade program
-        if self.fltArea < MIN_CONTOUR_AREA: return False        # much better validity checking would be necessary
-        return True
-
 def knnresult2():
+    npaClassifications = np.loadtxt("classifications3.txt", np.float32)                  # read in training classifications
+    npaFlattenedImages = np.loadtxt("flattened_images3.txt", np.float32)                 # read in training images
 
-    try:
-        npaClassifications = np.loadtxt("classifications.txt", np.float32)                  # read in training classifications
-    except:
-        print ("error, unable to open classifications.txt, exiting program\n")
-        os.system("pause")
-        return
+    npaClassifications = npaClassifications.reshape((npaClassifications.size, 1))       # reshape to 1d array
+    kNearest = cv2.ml.KNearest_create()    #start knn
+    kNearest.train(npaFlattenedImages, cv2.ml.ROW_SAMPLE, npaClassifications)   #train knn with classification and flattened image
 
-    try:
-        npaFlattenedImages = np.loadtxt("flattened_images.txt", np.float32)                 # read in training images
-    except:
-        print ("error, unable to open flattened_images.txt, exiting program\n")
-        os.system("pause")
-        return
+    imgTestingNumbers = cv2.imread("letter.png",0)          # read the letters to classify
 
-    npaClassifications = npaClassifications.reshape((npaClassifications.size, 1))       # reshape numpy array to 1d, necessary to pass to call to train
-    kNearest = cv2.ml.KNearest_create()                   # instantiate KNN object
-    kNearest.train(npaFlattenedImages, cv2.ml.ROW_SAMPLE, npaClassifications)
-
-    imgTestingNumbers = cv2.imread("letter.png",0)          # read in testing numbers image
-
-    imgROIResized = cv2.resize(imgTestingNumbers, (RESIZED_IMAGE_WIDTH, RESIZED_IMAGE_HEIGHT))             # resize image, this will be more consistent for recognition and storage
-    npaROIResized = imgROIResized.reshape((1, RESIZED_IMAGE_WIDTH * RESIZED_IMAGE_HEIGHT))      # flatten image into 1d numpy array
-    npaROIResized = np.float32(npaROIResized)       # convert from 1d numpy array of ints to 1d numpy array of floats
+    imgROIResized = cv2.resize(imgTestingNumbers, (RESIZED_IMAGE_WIDTH, RESIZED_IMAGE_HEIGHT))
+    npaROIResized = imgROIResized.reshape((1, RESIZED_IMAGE_WIDTH * RESIZED_IMAGE_HEIGHT))      # resize image into 1d array
+    npaROIResized = np.float32(npaROIResized)       # convert to float
 
     retval, npaResults, neigh_resp, dists = kNearest.findNearest(npaROIResized, k = 5)     # call KNN function find_nearest
-    print(retval)
-    print(neigh_resp)
-    strCurrentChar = str(chr(int(npaResults[0][0])))                                             # get character from results
+    print(retval)    #printing the classified value - used for testing
+    print(neigh_resp) #printing the nearest neighbours - used for testing
+    strCurrentChar = str(chr(int(npaResults[0][0])))                                             #take result and turn it into a character
 
     return strCurrentChar
 
